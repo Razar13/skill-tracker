@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -7,24 +8,65 @@ datasource db {
   provider = "postgresql"
 }
 
-model post {
-  authorId  Int
-  content   String?
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  id        Int      @id @default(autoincrement())
-  title     String
-  updatedAt DateTime @db.Timestamptz(6)
-  user      user     @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
 
-  @@index([authorId], map: "post_authorId_idx_e47547ed")
+  @@unique([email])
+  @@map("user")
 }
 
-model user {
-  createdAt DateTime @default(now()) @db.Timestamptz(6)
-  email     String   @unique
-  id        Int      @id @default(autoincrement())
-  name      String?
-  updatedAt DateTime @db.Timestamptz(6)
-  username  String?
-  post      post[]
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
