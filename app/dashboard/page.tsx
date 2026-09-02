@@ -61,6 +61,21 @@ export default function DashboardPage() {
     }
   }, []);
 
+  const handleDeleteSkill = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this skill and all its practice logs?")) return;
+
+    try {
+      const res = await fetch(`/api/skills/${id}`, { method: "DELETE" });
+      if (res.ok) {
+        // Refresh skills and calendar after deletion
+        fetchSkills();
+        fetchSessions();
+      }
+    } catch (err) {
+      console.error("Failed to delete skill:", err);
+    }
+  };
+
   useEffect(() => {
     async function init() {
       await Promise.all([fetchSkills(), fetchSessions()]);
@@ -154,14 +169,22 @@ export default function DashboardPage() {
             {skills.map((skill) => (
               <div
                 key={skill.id}
-                className="p-4 rounded-xl border bg-white shadow-sm"
+                className="p-4 rounded-xl border bg-white shadow-sm flex justify-between items-start"
                 style={{ borderLeft: `6px solid ${skill.color}` }}
               >
-                <h3 className="text-lg font-semibold">{skill.name}</h3>
-                <div className="mt-2 text-sm text-gray-500">
-                  <p>Sessions: {skill.sessionCount}</p>
-                  <p>Total time: {skill.totalMinutes} mins</p>
+                <div>
+                  <h3 className="text-lg font-semibold">{skill.name}</h3>
+                  <div className="mt-2 text-sm text-gray-500">
+                    <p>Sessions: {skill.sessionCount}</p>
+                    <p>Total time: {skill.totalMinutes} mins</p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => handleDeleteSkill(skill.id)}
+                  className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50"
+                >
+                  Delete
+                </button>
               </div>
             ))}
           </div>

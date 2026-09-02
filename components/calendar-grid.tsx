@@ -55,6 +55,20 @@ export default function CalendarGrid({ sessions }: CalendarGridProps) {
     return "bg-emerald-600 hover:bg-emerald-700";
   };
 
+  const handleDeleteSession = async (sessionId: string) => {
+    if (!confirm("Delete this practice session?")) return;
+
+    try {
+        const res = await fetch(`/api/sessions/${sessionId}`, { method: "DELETE" });
+        if (res.ok) {
+        // Trigger a page reload or refetch handler passed as a prop
+        window.location.reload();
+        }
+    } catch (err) {
+        console.error("Failed to delete session:", err);
+    }
+    };
+
   const activeSessions = selectedDate ? sessionsByDate[selectedDate] || [] : [];
 
   return (
@@ -100,23 +114,26 @@ export default function CalendarGrid({ sessions }: CalendarGridProps) {
             <div className="space-y-2">
               {activeSessions.map((session) => (
                 <div key={session.id} className="p-3 border rounded-lg bg-gray-50 flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full inline-block"
-                        style={{ backgroundColor: session.skill.color }}
-                      />
-                      <span className="font-medium text-sm">{session.skill.name}</span>
-                      <span className="text-sm text-gray-600">— {session.title}</span>
+                    <div>
+                        <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: session.skill.color }} />
+                        <span className="font-medium text-sm">{session.skill.name}</span>
+                        <span className="text-sm text-gray-600">— {session.title}</span>
+                        </div>
+                        {session.description && <p className="text-xs text-gray-500 mt-1">{session.description}</p>}
                     </div>
-                    {session.description && (
-                      <p className="text-xs text-gray-500 mt-1">{session.description}</p>
-                    )}
-                  </div>
-                  <span className="text-xs font-semibold px-2 py-1 bg-white border rounded">
-                    {session.durationMinutes} min
-                  </span>
-                </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold px-2 py-1 bg-white border rounded">
+                        {session.durationMinutes} min
+                        </span>
+                        <button
+                        onClick={() => handleDeleteSession(session.id)}
+                        className="text-xs text-red-500 hover:text-red-700 p-1"
+                        >
+                        ✕
+                        </button>
+                    </div>
+                    </div>
               ))}
             </div>
           )}
