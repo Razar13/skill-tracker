@@ -1,15 +1,18 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-zinc-50">
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 py-8">
         <header className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">
-            Skill Tracker
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Skill Tracker</h1>
 
-          <button className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white">
+          <Link
+            href="/login"
+            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+          >
             Sign in
-          </button>
+          </Link>
         </header>
 
         <section className="flex flex-1 items-center">
@@ -29,9 +32,12 @@ export default function Home() {
               progress over time.
             </p>
 
-            <button className="mt-8 rounded-lg bg-zinc-900 px-5 py-3 font-medium text-white">
+            <Link
+              href="/register"
+              className="mt-8 inline-block rounded-lg bg-zinc-900 px-5 py-3 font-medium text-white"
+            >
               Get started
-            </button>
+            </Link>
           </div>
         </section>
       </div>
