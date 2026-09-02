@@ -6,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import AddSkillModal from "@/components/add-skill-modal";
 import LogPracticeModal from "@/components/log-practice-modal";
 import CalendarGrid from "@/components/calendar-grid";
+import Link from "next/link";
 
 interface Skill {
   id: string;
@@ -95,13 +96,21 @@ export default function DashboardPage() {
       {/* Header bar */}
       <div className="flex justify-between items-center pb-4 border-b">
         <h1 className="text-2xl font-bold">Skill Tracker</h1>
-        <button
-          onClick={handleSignOut}
-          disabled={isLoggingOut}
-          className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors disabled:opacity-50"
-        >
-          {isLoggingOut ? "Disconnecting..." : "Disconnect"}
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/stats"
+            className="px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
+          >
+            📊 Statistics
+          </Link>
+          <button
+            onClick={handleSignOut}
+            disabled={isLoggingOut}
+            className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors disabled:opacity-50"
+          >
+            {isLoggingOut ? "Disconnecting..." : "Disconnect"}
+          </button>
+        </div>
       </div>
 
       {/* Action bar */}
