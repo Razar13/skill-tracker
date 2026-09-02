@@ -1,18 +1,40 @@
+"use client";
+
 import Link from "next/link";
+import { authClient } from "@/lib/auth-client";
 
 export default function Home() {
+  const { data: session, isPending } = authClient.useSession();
+
   return (
     <main className="min-h-screen bg-zinc-50">
       <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-6 py-8">
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold tracking-tight">Skill Tracker</h1>
 
-          <Link
-            href="/login"
-            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
-          >
-            Sign in
-          </Link>
+          {isPending ? (
+            // Avoid a flash of "Sign in" before we know the session state
+            <div className="h-9 w-24 animate-pulse rounded-lg bg-zinc-200" />
+          ) : session ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-zinc-600">
+                Hi, {session.user.name}
+              </span>
+              <button
+                onClick={() => authClient.signOut()}
+                className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700"
+              >
+                Sign out
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white"
+            >
+              Sign in
+            </Link>
+          )}
         </header>
 
         <section className="flex flex-1 items-center">
@@ -32,12 +54,21 @@ export default function Home() {
               progress over time.
             </p>
 
-            <Link
-              href="/register"
-              className="mt-8 inline-block rounded-lg bg-zinc-900 px-5 py-3 font-medium text-white"
-            >
-              Get started
-            </Link>
+            {isPending ? null : session ? (
+              <Link
+                href="/dashboard"
+                className="mt-8 inline-block rounded-lg bg-zinc-900 px-5 py-3 font-medium text-white"
+              >
+                Go to dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/register"
+                className="mt-8 inline-block rounded-lg bg-zinc-900 px-5 py-3 font-medium text-white"
+              >
+                Get started
+              </Link>
+            )}
           </div>
         </section>
       </div>
