@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import AddSkillModal from "@/components/add-skill-modal";
 import LogPracticeModal from "@/components/log-practice-modal";
+import CalendarGrid from "@/components/calendar-grid";
 
 interface Skill {
   id: string;
@@ -14,9 +15,22 @@ interface Skill {
   totalMinutes: number;
 }
 
+interface PracticeSession {
+  id: string;
+  title: string;
+  description: string | null;
+  durationMinutes: number;
+  date: string;
+  skill: {
+    name: string;
+    color: string;
+  };
+}
+
 export default function DashboardPage() {
   const router = useRouter();
   const [skills, setSkills] = useState<Skill[]>([]);
+  const [sessions, setSessions] = useState<PracticeSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
   const [isLogPracticeOpen, setIsLogPracticeOpen] = useState(false);
@@ -31,14 +45,28 @@ export default function DashboardPage() {
       }
     } catch (err) {
       console.error("Failed loading skills:", err);
-    } finally {
-      setLoading(false);
+    }
+  }, []);
+
+  const fetchSessions = useCallback(async () => {
+    try {
+      const res = await fetch("/api/sessions");
+      if (res.ok) {
+        const data = await res.json();
+        setSessions(data);
+      }
+    } catch (err) {
+      console.error("Failed loading sessions:", err);
     }
   }, []);
 
   useEffect(() => {
-    fetchSkills();
-  }, [fetchSkills]);
+    async function init() {
+      await Promise.all([fetchSkills(), fetchSessions()]);
+      setLoading(false);
+    }
+    init();
+  }, [fetchSkills, fetchSessions]);
 
   const handleSignOut = async () => {
     setIsLoggingOut(true);
@@ -55,12 +83,17 @@ export default function DashboardPage() {
     setSkills((prev) => [newSkill, ...prev]);
   };
 
+  const handleSessionLogged = () => {
+    fetchSkills();
+    fetchSessions();
+  };
+
   if (loading) return <div className="p-6">Loading dashboard...</div>;
 
   return (
-    <main className="p-6 max-w-5xl mx-auto">
+    <main className="p-6 max-w-5xl mx-auto space-y-8">
       {/* Header bar */}
-      <div className="flex justify-between items-center mb-8 pb-4 border-b">
+      <div className="flex justify-between items-center pb-4 border-b">
         <h1 className="text-2xl font-bold">Skill Tracker</h1>
         <button
           onClick={handleSignOut}
@@ -72,8 +105,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Action bar */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold">Your Skills</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-semibold">Overview</h2>
         <div className="flex gap-3">
           <button
             onClick={() => setIsLogPracticeOpen(true)}
@@ -91,34 +124,40 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Calendar Heatmap Grid */}
+      <CalendarGrid sessions={sessions} />
+
       {/* Skills list */}
-      {skills.length === 0 ? (
-        <div className="text-center py-12 border border-dashed rounded-xl">
-          <p className="text-gray-500 mb-4">No skills tracked yet.</p>
-          <button
-            onClick={() => setIsAddSkillOpen(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          >
-            Create your first skill
-          </button>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {skills.map((skill) => (
-            <div
-              key={skill.id}
-              className="p-4 rounded-xl border bg-white shadow-sm"
-              style={{ borderLeft: `6px solid ${skill.color}` }}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Your Skills</h2>
+        {skills.length === 0 ? (
+          <div className="text-center py-12 border border-dashed rounded-xl">
+            <p className="text-gray-500 mb-4">No skills tracked yet.</p>
+            <button
+              onClick={() => setIsAddSkillOpen(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg"
             >
-              <h3 className="text-lg font-semibold">{skill.name}</h3>
-              <div className="mt-2 text-sm text-gray-500">
-                <p>Sessions: {skill.sessionCount}</p>
-                <p>Total time: {skill.totalMinutes} mins</p>
+              Create your first skill
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {skills.map((skill) => (
+              <div
+                key={skill.id}
+                className="p-4 rounded-xl border bg-white shadow-sm"
+                style={{ borderLeft: `6px solid ${skill.color}` }}
+              >
+                <h3 className="text-lg font-semibold">{skill.name}</h3>
+                <div className="mt-2 text-sm text-gray-500">
+                  <p>Sessions: {skill.sessionCount}</p>
+                  <p>Total time: {skill.totalMinutes} mins</p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Modals */}
       <AddSkillModal
@@ -131,7 +170,7 @@ export default function DashboardPage() {
         isOpen={isLogPracticeOpen}
         skills={skills}
         onClose={() => setIsLogPracticeOpen(false)}
-        onSessionLogged={fetchSkills}
+        onSessionLogged={handleSessionLogged}
       />
     </main>
   );
