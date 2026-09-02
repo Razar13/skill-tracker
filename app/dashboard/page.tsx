@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import AddSkillModal from "@/components/add-skill-modal";
+import LogPracticeModal from "@/components/log-practice-modal";
 
 interface Skill {
   id: string;
@@ -17,25 +18,27 @@ export default function DashboardPage() {
   const router = useRouter();
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
+  const [isLogPracticeOpen, setIsLogPracticeOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  useEffect(() => {
-    async function fetchSkills() {
-      try {
-        const res = await fetch("/api/skills");
-        if (res.ok) {
-          const data = await res.json();
-          setSkills(data);
-        }
-      } catch (err) {
-        console.error("Failed loading skills:", err);
-      } finally {
-        setLoading(false);
+  const fetchSkills = useCallback(async () => {
+    try {
+      const res = await fetch("/api/skills");
+      if (res.ok) {
+        const data = await res.json();
+        setSkills(data);
       }
+    } catch (err) {
+      console.error("Failed loading skills:", err);
+    } finally {
+      setLoading(false);
     }
-    fetchSkills();
   }, []);
+
+  useEffect(() => {
+    fetchSkills();
+  }, [fetchSkills]);
 
   const handleSignOut = async () => {
     setIsLoggingOut(true);
@@ -56,7 +59,7 @@ export default function DashboardPage() {
 
   return (
     <main className="p-6 max-w-5xl mx-auto">
-      {/* Header bar with Logout */}
+      {/* Header bar */}
       <div className="flex justify-between items-center mb-8 pb-4 border-b">
         <h1 className="text-2xl font-bold">Skill Tracker</h1>
         <button
@@ -68,15 +71,24 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Main content header */}
+      {/* Action bar */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold">Your Skills</h2>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
-        >
-          + Add Skill
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setIsLogPracticeOpen(true)}
+            disabled={skills.length === 0}
+            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium text-sm disabled:opacity-50"
+          >
+            + Log Practice
+          </button>
+          <button
+            onClick={() => setIsAddSkillOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
+          >
+            + Add Skill
+          </button>
+        </div>
       </div>
 
       {/* Skills list */}
@@ -84,7 +96,7 @@ export default function DashboardPage() {
         <div className="text-center py-12 border border-dashed rounded-xl">
           <p className="text-gray-500 mb-4">No skills tracked yet.</p>
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => setIsAddSkillOpen(true)}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg"
           >
             Create your first skill
@@ -108,10 +120,18 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Modals */}
       <AddSkillModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isAddSkillOpen}
+        onClose={() => setIsAddSkillOpen(false)}
         onSkillAdded={handleSkillAdded}
+      />
+
+      <LogPracticeModal
+        isOpen={isLogPracticeOpen}
+        skills={skills}
+        onClose={() => setIsLogPracticeOpen(false)}
+        onSessionLogged={fetchSkills}
       />
     </main>
   );
