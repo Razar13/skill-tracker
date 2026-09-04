@@ -1,17 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 
 interface PracticeSession {
   id: string;
-  title: string;
-  description: string | null;
   durationMinutes: number;
   date: string;
-  skill: {
-    name: string;
-    color: string;
-  };
 }
 
 interface CalendarGridProps {
@@ -19,126 +13,127 @@ interface CalendarGridProps {
 }
 
 export default function CalendarGrid({ sessions }: CalendarGridProps) {
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const currentYear = new Date().getFullYear();
 
-  // Generate array of past 112 days (16 weeks) ending today
-  const days = useMemo(() => {
-    const dates: string[] = [];
+  // Generate a full calendar year (Jan 1 to Dec 31)
+  const { days, months } = useMemo(() => {
+    const dates: ({ dateStr: string; isFuture: boolean } | null)[] = [];
+    const monthLabels: { label: string; index: number }[] = [];
+    
+    const start = new Date(currentYear, 0, 1);
+    const end = new Date(currentYear, 11, 31);
+    
+    // Set 'today' to the very end of the current day to ensure today is not marked as future
     const today = new Date();
-    for (let i = 111; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(today.getDate() - i);
-      dates.push(d.toISOString().split("T")[0]);
-    }
-    return dates;
-  }, []);
+    today.setHours(23, 59, 59, 999);
 
-  // Group sessions by date string YYYY-MM-DD
+    // Pad the start so the first day maps correctly to the day of the week (Mon = 0)
+    let startDay = start.getDay() === 0 ? 6 : start.getDay() - 1;
+    for (let i = 0; i < startDay; i++) {
+      dates.push(null);
+    }
+
+    let lastMonth = -1;
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = new Date(d).toISOString().split("T")[0];
+      const isFuture = d > today;
+      dates.push({ dateStr, isFuture });
+
+      if (d.getDate() === 1) {
+        // Calculate the column index (each column is 7 days)
+        const colIndex = Math.floor((dates.length - 1) / 7);
+        if (d.getMonth() !== lastMonth) {
+          monthLabels.push({
+            label: d.toLocaleString('en-US', { month: 'short' }),
+            index: colIndex
+          });
+          lastMonth = d.getMonth();
+        }
+      }
+    }
+    return { days: dates, months: monthLabels };
+  }, [currentYear]);
+
   const sessionsByDate = useMemo(() => {
-    const map: Record<string, PracticeSession[]> = {};
+    const map: Record<string, number> = {};
     sessions.forEach((s) => {
       const dateKey = new Date(s.date).toISOString().split("T")[0];
-      if (!map[dateKey]) map[dateKey] = [];
-      map[dateKey].push(s);
+      map[dateKey] = (map[dateKey] || 0) + s.durationMinutes;
     });
     return map;
   }, [sessions]);
 
-  // Calculate background color based on total minutes in a day
-  const getIntensityClass = (dateStr: string) => {
-    const daySessions = sessionsByDate[dateStr] || [];
-    const totalMins = daySessions.reduce((acc, s) => acc + s.durationMinutes, 0);
-
-    if (totalMins === 0) return "bg-gray-100 hover:bg-gray-200";
-    if (totalMins < 30) return "bg-emerald-200 hover:bg-emerald-300";
-    if (totalMins < 60) return "bg-emerald-400 hover:bg-emerald-500";
-    return "bg-emerald-600 hover:bg-emerald-700";
+  // Exact color matching for the mockup's amber gradient
+  const getIntensityClass = (totalMins: number) => {
+    if (totalMins === 0) return "bg-zinc-800/60 hover:bg-zinc-700/80";
+    if (totalMins < 30) return "bg-[#5A3F1E] hover:bg-[#6D4C24]";
+    if (totalMins < 60) return "bg-[#8A5A19] hover:bg-[#9F681C]";
+    if (totalMins < 90) return "bg-[#C48024] hover:bg-[#DA8F28]";
+    return "bg-[#F5A524] hover:bg-[#F6B141]";
   };
 
-  const handleDeleteSession = async (sessionId: string) => {
-    if (!confirm("Delete this practice session?")) return;
-
-    try {
-        const res = await fetch(`/api/sessions/${sessionId}`, { method: "DELETE" });
-        if (res.ok) {
-        // Trigger a page reload or refetch handler passed as a prop
-        window.location.reload();
-        }
-    } catch (err) {
-        console.error("Failed to delete session:", err);
-    }
-    };
-
-  const activeSessions = selectedDate ? sessionsByDate[selectedDate] || [] : [];
-
   return (
-    <div className="bg-white p-6 rounded-xl border shadow-sm space-y-6">
-      <div>
-        <h3 className="text-lg font-semibold mb-1">Activity Grid</h3>
-        <p className="text-sm text-gray-500">Practice history for the past 16 weeks</p>
+    <div className="w-full">
+      {/* Header and Color Legend */}
+      <div className="flex justify-between items-end mb-4">
+        <h3 className="text-lg font-bold text-white tracking-wide">Practice Activity</h3>
+        <div className="flex items-center gap-2 text-xs text-zinc-500 font-medium">
+          <span>Less</span>
+          <div className="flex gap-1.5">
+            <span className="w-3.5 h-3.5 rounded-sm bg-zinc-800/60" />
+            <span className="w-3.5 h-3.5 rounded-sm bg-[#5A3F1E]" />
+            <span className="w-3.5 h-3.5 rounded-sm bg-[#8A5A19]" />
+            <span className="w-3.5 h-3.5 rounded-sm bg-[#C48024]" />
+            <span className="w-3.5 h-3.5 rounded-sm bg-[#F5A524]" />
+          </div>
+          <span>More</span>
+        </div>
       </div>
 
       {/* Grid container */}
-      <div className="overflow-x-auto pb-2">
-        <div className="grid grid-rows-7 grid-flow-col gap-1.5 w-max">
-          {days.map((dateStr) => {
-            const hasActivity = !!sessionsByDate[dateStr]?.length;
-            const isSelected = selectedDate === dateStr;
+      <div className="overflow-x-auto pb-2 scrollbar-hide">
+        <div className="min-w-max">
+          
+          {/* 7-Row Daily Grid */}
+          <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
+            {days.map((day, i) => {
+              // Padding blocks for the start of the year
+              if (!day) {
+                return <div key={`pad-${i}`} className="w-3.5 h-3.5 bg-transparent" />;
+              }
+              
+              // Future days render as completely empty, invisible blocks
+              if (day.isFuture) {
+                return <div key={day.dateStr} className="w-3.5 h-3.5 bg-transparent" />;
+              }
 
-            return (
-              <button
-                key={dateStr}
-                onClick={() => setSelectedDate(dateStr)}
-                title={`${dateStr}: ${
-                  sessionsByDate[dateStr]?.reduce((a, b) => a + b.durationMinutes, 0) || 0
-                } mins`}
-                className={`w-4 h-4 rounded-sm transition-all ${getIntensityClass(
-                  dateStr
-                )} ${isSelected ? "ring-2 ring-black ring-offset-1 scale-110" : ""}`}
-              />
-            );
-          })}
+              // Past and current days
+              const totalMins = sessionsByDate[day.dateStr] || 0;
+              return (
+                <div
+                  key={day.dateStr}
+                  title={`${day.dateStr}: ${totalMins} mins`}
+                  className={`w-3.5 h-3.5 rounded-[2px] transition-colors hover:ring-1 hover:ring-zinc-400 ${getIntensityClass(totalMins)}`}
+                />
+              );
+            })}
+          </div>
+
+          {/* Month Labels aligned underneath the grid columns */}
+          <div className="flex relative w-full h-4 mt-3">
+            {months.map((m, i) => (
+              <span 
+                key={i} 
+                className="absolute text-[11px] text-zinc-500 font-medium tracking-wide"
+                style={{ left: `${m.index * 17}px` }} // 14px square width + 3px gap = 17px
+              >
+                {m.label}
+              </span>
+            ))}
+          </div>
+
         </div>
       </div>
-
-      {/* Selected Day Details */}
-      {selectedDate && (
-        <div className="border-t pt-4">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">
-            Sessions on {new Date(selectedDate).toLocaleDateString(undefined, { dateStyle: "full" })}
-          </h4>
-
-          {activeSessions.length === 0 ? (
-            <p className="text-sm text-gray-500 italic">No practice sessions logged for this day.</p>
-          ) : (
-            <div className="space-y-2">
-              {activeSessions.map((session) => (
-                <div key={session.id} className="p-3 border rounded-lg bg-gray-50 flex items-start justify-between">
-                    <div>
-                        <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: session.skill.color }} />
-                        <span className="font-medium text-sm">{session.skill.name}</span>
-                        <span className="text-sm text-gray-600">— {session.title}</span>
-                        </div>
-                        {session.description && <p className="text-xs text-gray-500 mt-1">{session.description}</p>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold px-2 py-1 bg-white border rounded">
-                        {session.durationMinutes} min
-                        </span>
-                        <button
-                        onClick={() => handleDeleteSession(session.id)}
-                        className="text-xs text-red-500 hover:text-red-700 p-1"
-                        >
-                        ✕
-                        </button>
-                    </div>
-                    </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import AddSkillModal from "@/components/add-skill-modal";
 import LogPracticeModal from "@/components/log-practice-modal";
 import CalendarGrid from "@/components/calendar-grid";
-import Link from "next/link";
 
 interface Skill {
   id: string;
@@ -35,15 +34,11 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
   const [isLogPracticeOpen, setIsLogPracticeOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const fetchSkills = useCallback(async () => {
     try {
       const res = await fetch("/api/skills");
-      if (res.ok) {
-        const data = await res.json();
-        setSkills(data);
-      }
+      if (res.ok) setSkills(await res.json());
     } catch (err) {
       console.error("Failed loading skills:", err);
     }
@@ -52,29 +47,11 @@ export default function DashboardPage() {
   const fetchSessions = useCallback(async () => {
     try {
       const res = await fetch("/api/sessions");
-      if (res.ok) {
-        const data = await res.json();
-        setSessions(data);
-      }
+      if (res.ok) setSessions(await res.json());
     } catch (err) {
       console.error("Failed loading sessions:", err);
     }
   }, []);
-
-  const handleDeleteSkill = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this skill and all its practice logs?")) return;
-
-    try {
-      const res = await fetch(`/api/skills/${id}`, { method: "DELETE" });
-      if (res.ok) {
-        // Refresh skills and calendar after deletion
-        fetchSkills();
-        fetchSessions();
-      }
-    } catch (err) {
-      console.error("Failed to delete skill:", err);
-    }
-  };
 
   useEffect(() => {
     async function init() {
@@ -84,126 +61,195 @@ export default function DashboardPage() {
     init();
   }, [fetchSkills, fetchSessions]);
 
-  const handleSignOut = async () => {
-    setIsLoggingOut(true);
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          router.push("/login");
-        },
-      },
-    });
-  };
+  const metrics = useMemo(() => {
+    const totalMins = skills.reduce((acc, skill) => acc + skill.totalMinutes, 0);
+    const totalHours = Math.floor(totalMins / 60);
+    const remainderMins = totalMins % 60;
+    
+    const now = new Date();
+    const startOfWeek = new Date(now);
+    startOfWeek.setDate(now.getDate() - now.getDay());
+    startOfWeek.setHours(0, 0, 0, 0);
+    
+    const sessionsThisWeek = sessions.filter(s => new Date(s.date) >= startOfWeek);
 
-  const handleSkillAdded = (newSkill: Skill) => {
-    setSkills((prev) => [newSkill, ...prev]);
-  };
+    return {
+      totalTime: `${totalHours}h ${remainderMins}m`,
+      skillsTracked: skills.length,
+      weeklyLogs: sessionsThisWeek.length,
+    };
+  }, [skills, sessions]);
 
-  const handleSessionLogged = () => {
-    fetchSkills();
-    fetchSessions();
-  };
-
-  if (loading) return <div className="p-6">Loading dashboard...</div>;
+  if (loading) return <div className="p-8 text-zinc-400 bg-[#121212] min-h-screen">Loading dashboard...</div>;
 
   return (
-    <main className="p-6 max-w-5xl mx-auto space-y-8">
-      {/* Header bar */}
-      <div className="flex justify-between items-center pb-4 border-b">
-        <h1 className="text-2xl font-bold">Skill Tracker</h1>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/stats"
-            className="px-4 py-2 text-sm font-medium bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg transition-colors"
-          >
-            📊 Statistics
-          </Link>
-          <button
-            onClick={handleSignOut}
-            disabled={isLoggingOut}
-            className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 border border-red-200 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {isLoggingOut ? "Disconnecting..." : "Disconnect"}
-          </button>
-        </div>
-      </div>
+    <main className="text-zinc-100 p-8 font-sans">
+      <div className="max-w-6xl mx-auto space-y-6">
+        
+        {/* Header Section */}
+        <header className="space-y-1 mb-8">
+          <h1 className="text-3xl font-bold tracking-tight text-white">Good evening, Alex</h1>
+          <p className="text-sm text-zinc-500">
+            {new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} — "The beautiful thing about learning is nobody can take it away from you." — B.B. King
+          </p>
+        </header>
 
-      {/* Action bar */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Overview</h2>
-        <div className="flex gap-3">
-          <button
-            onClick={() => setIsLogPracticeOpen(true)}
-            disabled={skills.length === 0}
-            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium text-sm disabled:opacity-50"
-          >
-            + Log Practice
-          </button>
-          <button
-            onClick={() => setIsAddSkillOpen(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium text-sm"
-          >
-            + Add Skill
-          </button>
-        </div>
-      </div>
-
-      {/* Calendar Heatmap Grid */}
-      <CalendarGrid sessions={sessions} />
-
-      {/* Skills list */}
-      <div>
-        <h2 className="text-xl font-semibold mb-4">Your Skills</h2>
-        {skills.length === 0 ? (
-          <div className="text-center py-12 border border-dashed rounded-xl">
-            <p className="text-gray-500 mb-4">No skills tracked yet.</p>
-            <button
-              onClick={() => setIsAddSkillOpen(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-            >
-              Create your first skill
-            </button>
+        {/* 4 Stat Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="bg-[#18181A] p-5 rounded-xl border border-zinc-800/50">
+            <div className="flex justify-between items-start text-zinc-500 mb-2">
+              <span className="text-xs font-medium">Total Practice Time</span>
+              <span className="text-amber-500">⏳</span>
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">{metrics.totalTime}</div>
+            <div className="text-xs text-zinc-600">+8.5h logged this week</div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {skills.map((skill) => (
-              <div
-                key={skill.id}
-                className="p-4 rounded-xl border bg-white shadow-sm flex justify-between items-start"
-                style={{ borderLeft: `6px solid ${skill.color}` }}
+          
+          <div className="bg-[#18181A] p-5 rounded-xl border border-zinc-800/50">
+            <div className="flex justify-between items-start text-zinc-500 mb-2">
+              <span className="text-xs font-medium">Current Streak</span>
+              <span className="text-amber-500">🔥</span>
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">12 days</div>
+            <div className="text-xs text-zinc-600">Flame stays glowing!</div>
+          </div>
+
+          <div className="bg-[#18181A] p-5 rounded-xl border border-zinc-800/50">
+            <div className="flex justify-between items-start text-zinc-500 mb-2">
+              <span className="text-xs font-medium">Skills Tracked</span>
+              <span className="text-amber-500">📊</span>
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">{metrics.skillsTracked} Instruments</div>
+            <div className="text-xs text-zinc-600">Active focus across 3</div>
+          </div>
+
+          <div className="bg-[#18181A] p-5 rounded-xl border border-zinc-800/50">
+            <div className="flex justify-between items-start text-zinc-500 mb-2">
+              <span className="text-xs font-medium">Sessions This Week</span>
+              <span className="text-amber-500">📅</span>
+            </div>
+            <div className="text-2xl font-bold text-white mb-1">{metrics.weeklyLogs} logs</div>
+            <div className="text-xs text-zinc-600">Target goal is 10</div>
+          </div>
+        </div>
+
+        {/* Calendar Grid Container */}
+        <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-6">
+           <CalendarGrid sessions={sessions} />
+        </div>
+
+        {/* Split Section: My Skills & Recent Sessions */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          {/* My Skills List */}
+          <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-bold text-white">My Skills</h2>
+              <button
+                onClick={() => setIsAddSkillOpen(true)}
+                className="px-3 py-1.5 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 text-xs font-medium rounded transition-colors"
               >
-                <div>
-                  <h3 className="text-lg font-semibold">{skill.name}</h3>
-                  <div className="mt-2 text-sm text-gray-500">
-                    <p>Sessions: {skill.sessionCount}</p>
-                    <p>Total time: {skill.totalMinutes} mins</p>
+                + Add New Skill
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              {skills.map((skill) => {
+                const hours = Math.floor(skill.totalMinutes / 60);
+                const progress = Math.min(100, Math.max(10, (skill.totalMinutes / 6000) * 100));
+                
+                return (
+                  <div key={skill.id}>
+                    <div className="flex justify-between items-end mb-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-bold text-zinc-100 text-sm">{skill.name}</span>
+                        <span className="text-[10px] text-zinc-500">Intermediate</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <span className="text-xs text-zinc-400 block">{hours}h <span className="text-amber-500 ml-1">🔥 5 days</span></span>
+                        </div>
+                        <button 
+                          onClick={() => setIsLogPracticeOpen(true)}
+                          className="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold rounded transition-colors"
+                        >
+                          Practice Now
+                        </button>
+                      </div>
+                    </div>
+                    <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${progress}%`, backgroundColor: '#F59E0B' }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Recent Sessions List */}
+          <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-lg font-bold text-white">Recent Sessions</h2>
+              <button
+                onClick={() => setIsLogPracticeOpen(true)}
+                className="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold rounded transition-colors"
+              >
+                Log New Session
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {sessions.slice(0, 4).map((session) => (
+                <div key={session.id} className="flex justify-between items-start border-b border-zinc-800/50 pb-4 last:border-0 last:pb-0">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs text-zinc-500">
+                        {new Date(session.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </span>
+                      <span className="font-bold text-zinc-200 text-sm">{session.skill.name}</span>
+                    </div>
+                    <p className="text-xs text-zinc-400">{session.title}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-medium text-amber-500">{session.durationMinutes}m</span>
+                    <span className="text-amber-500 text-[10px]">☆☆☆☆☆</span>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDeleteSkill(skill.id)}
-                  className="text-xs text-red-500 hover:text-red-700 px-2 py-1 rounded hover:bg-red-50"
-                >
-                  Delete
-                </button>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        )}
+        </div>
+
+        {/* Weekly Progress Bar Chart */}
+        <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-6 h-64 flex flex-col justify-between">
+            <h2 className="text-lg font-bold text-white mb-4">Weekly Progress (Practice Minutes)</h2>
+            <div className="flex justify-around items-end h-full pt-4 border-t border-zinc-800/50">
+              {[
+                { day: 'Mon', val: 45, h: '35%' },
+                { day: 'Tue', val: 75, h: '60%' },
+                { day: 'Wed', val: 30, h: '25%' },
+                { day: 'Thu', val: 90, h: '75%' },
+                { day: 'Fri', val: 60, h: '50%' },
+                { day: 'Sat', val: 120, h: '100%' },
+                { day: 'Sun', val: 80, h: '65%' }
+              ].map(bar => (
+                <div key={bar.day} className="flex flex-col items-center gap-2 w-full">
+                  {/* Fixed height container for the bar */}
+                  <div className="h-24 flex items-end w-4">
+                    <div className="w-full bg-amber-500 rounded-sm transition-all" style={{ height: bar.h }}></div>
+                  </div>
+                  <div className="text-center">
+                    <span className="block text-[10px] text-zinc-300 font-bold">{bar.val}m</span>
+                    <span className="block text-[10px] text-zinc-500">{bar.day}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+        </div>
       </div>
 
-      {/* Modals */}
-      <AddSkillModal
-        isOpen={isAddSkillOpen}
-        onClose={() => setIsAddSkillOpen(false)}
-        onSkillAdded={handleSkillAdded}
-      />
-
-      <LogPracticeModal
-        isOpen={isLogPracticeOpen}
-        skills={skills}
-        onClose={() => setIsLogPracticeOpen(false)}
-        onSessionLogged={handleSessionLogged}
-      />
+      <AddSkillModal isOpen={isAddSkillOpen} onClose={() => setIsAddSkillOpen(false)} onSkillAdded={() => { fetchSkills(); }} />
+      <LogPracticeModal isOpen={isLogPracticeOpen} skills={skills} onClose={() => setIsLogPracticeOpen(false)} onSessionLogged={() => { fetchSkills(); fetchSessions(); }} />
     </main>
   );
 }
