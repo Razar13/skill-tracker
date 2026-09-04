@@ -12,23 +12,26 @@ interface CalendarGridProps {
   sessions: PracticeSession[];
 }
 
+interface DayCell {
+  dateStr: string;
+  isFuture: boolean;
+}
+
 export default function CalendarGrid({ sessions }: CalendarGridProps) {
   const currentYear = new Date().getFullYear();
 
-  // Generate a full calendar year (Jan 1 to Dec 31)
-  const { days, months } = useMemo(() => {
-    const dates: ({ dateStr: string; isFuture: boolean } | null)[] = [];
-    const monthLabels: { label: string; index: number }[] = [];
-    
+  const { days, months, weeksCount } = useMemo(() => {
+    const dates: (DayCell | null)[] = [];
+    const monthLabels: { label: string; week: number }[] = [];
+
     const start = new Date(currentYear, 0, 1);
     const end = new Date(currentYear, 11, 31);
-    
-    // Set 'today' to the very end of the current day to ensure today is not marked as future
+
     const today = new Date();
     today.setHours(23, 59, 59, 999);
 
-    // Pad the start so the first day maps correctly to the day of the week (Mon = 0)
-    let startDay = start.getDay() === 0 ? 6 : start.getDay() - 1;
+    // Pad so Jan 1 lands in the correct weekday row (Mon = 0 ... Sun = 6)
+    const startDay = start.getDay() === 0 ? 6 : start.getDay() - 1;
     for (let i = 0; i < startDay; i++) {
       dates.push(null);
     }
@@ -39,19 +42,27 @@ export default function CalendarGrid({ sessions }: CalendarGridProps) {
       const isFuture = d > today;
       dates.push({ dateStr, isFuture });
 
-      if (d.getDate() === 1) {
-        // Calculate the column index (each column is 7 days)
-        const colIndex = Math.floor((dates.length - 1) / 7);
-        if (d.getMonth() !== lastMonth) {
-          monthLabels.push({
-            label: d.toLocaleString('en-US', { month: 'short' }),
-            index: colIndex
-          });
-          lastMonth = d.getMonth();
-        }
+      if (d.getMonth() !== lastMonth) {
+        const week = Math.floor((dates.length - 1) / 7);
+        monthLabels.push({
+          label: d.toLocaleString("en-US", { month: "short" }),
+          week,
+        });
+        lastMonth = d.getMonth();
       }
     }
-    return { days: dates, months: monthLabels };
+
+    // Pad the end so the final column is a full week too — this is what
+    // guarantees December's column reaches all the way to the right edge.
+    while (dates.length % 7 !== 0) {
+      dates.push(null);
+    }
+
+    return {
+      days: dates,
+      months: monthLabels,
+      weeksCount: dates.length / 7,
+    };
   }, [currentYear]);
 
   const sessionsByDate = useMemo(() => {
@@ -63,7 +74,6 @@ export default function CalendarGrid({ sessions }: CalendarGridProps) {
     return map;
   }, [sessions]);
 
-  // Exact color matching for the mockup's amber gradient
   const getIntensityClass = (totalMins: number) => {
     if (totalMins === 0) return "bg-zinc-800/60 hover:bg-zinc-700/80";
     if (totalMins < 30) return "bg-[#5A3F1E] hover:bg-[#6D4C24]";
@@ -90,49 +100,54 @@ export default function CalendarGrid({ sessions }: CalendarGridProps) {
         </div>
       </div>
 
-      {/* Grid container */}
-      <div className="overflow-x-auto pb-2 scrollbar-hide">
-        <div className="min-w-max">
-          
-          {/* 7-Row Daily Grid */}
-          <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
-            {days.map((day, i) => {
-              // Padding blocks for the start of the year
-              if (!day) {
-                return <div key={`pad-${i}`} className="w-3.5 h-3.5 bg-transparent" />;
-              }
-              
-              // Future days render as completely empty, invisible blocks
-              if (day.isFuture) {
-                return <div key={day.dateStr} className="w-3.5 h-3.5 bg-transparent" />;
-              }
+      {/*
+        One shared grid for month labels + day cells, so they're always
+        pixel-aligned. Columns are fractional (1fr each) instead of a fixed
+        px width, so the whole heatmap stretches to fill the card and the
+        last column (December) always sits flush against the right edge.
+      */}
+      <div
+        className="grid w-full gap-[3px]"
+        style={{
+          gridTemplateColumns: `repeat(${weeksCount}, minmax(0, 1fr))`,
+          gridTemplateRows: "auto repeat(7, 1fr)",
+        }}
+      >
+        {/* Month labels */}
+        {months.map((m) => (
+          <span
+            key={`${m.label}-${m.week}`}
+            className="text-[11px] text-zinc-500 font-medium tracking-wide mb-1"
+            style={{ gridColumn: m.week + 1, gridRow: 1 }}
+          >
+            {m.label}
+          </span>
+        ))}
 
-              // Past and current days
-              const totalMins = sessionsByDate[day.dateStr] || 0;
-              return (
-                <div
-                  key={day.dateStr}
-                  title={`${day.dateStr}: ${totalMins} mins`}
-                  className={`w-3.5 h-3.5 rounded-[2px] transition-colors hover:ring-1 hover:ring-zinc-400 ${getIntensityClass(totalMins)}`}
-                />
-              );
-            })}
-          </div>
+        {/* Day cells */}
+        {days.map((day, i) => {
+          const week = Math.floor(i / 7) + 1;
+          const weekday = (i % 7) + 2; // row 1 is reserved for month labels
 
-          {/* Month Labels aligned underneath the grid columns */}
-          <div className="flex relative w-full h-4 mt-3">
-            {months.map((m, i) => (
-              <span 
-                key={i} 
-                className="absolute text-[11px] text-zinc-500 font-medium tracking-wide"
-                style={{ left: `${m.index * 17}px` }} // 14px square width + 3px gap = 17px
-              >
-                {m.label}
-              </span>
-            ))}
-          </div>
+          if (!day || day.isFuture) {
+            return (
+              <div
+                key={day ? day.dateStr : `pad-${i}`}
+                style={{ gridColumn: week, gridRow: weekday }}
+              />
+            );
+          }
 
-        </div>
+          const totalMins = sessionsByDate[day.dateStr] || 0;
+          return (
+            <div
+              key={day.dateStr}
+              title={`${day.dateStr}: ${totalMins} mins`}
+              style={{ gridColumn: week, gridRow: weekday }}
+              className={`aspect-square rounded-[2px] transition-colors hover:ring-1 hover:ring-zinc-400 ${getIntensityClass(totalMins)}`}
+            />
+          );
+        })}
       </div>
     </div>
   );
