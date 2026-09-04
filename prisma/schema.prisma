@@ -82,15 +82,31 @@ model Skill {
   color     String
   createdAt DateTime          @default(now())
   sessions  PracticeSession[]
+  projects  Project[]
 
   @@index([userId])
   @@map("skill")
+}
+
+model Project {
+  id          String            @id @default(cuid())
+  skillId     String
+  skill       Skill             @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  createdAt   DateTime          @default(now())
+  sessions    PracticeSession[]
+
+  @@index([skillId])
+  @@map("project")
 }
 
 model PracticeSession {
   id              String       @id @default(cuid())
   skillId         String
   skill           Skill        @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  projectId       String?
+  project         Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
   date            DateTime     @db.Date
   title           String
   description     String?
@@ -99,6 +115,7 @@ model PracticeSession {
   attachments     Attachment[]
 
   @@index([skillId])
+  @@index([projectId])
   @@map("practice_session")
 }
 

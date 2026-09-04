@@ -43,6 +43,11 @@ export type Verification = Prisma.VerificationModel
  */
 export type Skill = Prisma.SkillModel
 /**
+ * Model Project
+ * 
+ */
+export type Project = Prisma.ProjectModel
+/**
  * Model PracticeSession
  * 
  */

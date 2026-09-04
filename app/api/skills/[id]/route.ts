@@ -3,6 +3,38 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  const skill = await prisma.skill.findFirst({
+    where: { id, userId: session.user.id },
+    include: {
+      sessions: {
+        orderBy: { date: "desc" },
+        include: { project: { select: { id: true, name: true } } },
+      },
+      projects: {
+        orderBy: { createdAt: "desc" },
+        include: { _count: { select: { sessions: true } } },
+      },
+    },
+  });
+
+  if (!skill) {
+    return NextResponse.json({ error: "Skill not found." }, { status: 404 });
+  }
+
+  return NextResponse.json(skill);
+}
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -37,6 +69,8 @@ export async function PATCH(
 
   return NextResponse.json(updatedSkill);
 }
+
+
 
 export async function DELETE(
   request: Request,

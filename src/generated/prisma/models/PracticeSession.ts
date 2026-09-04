@@ -37,6 +37,7 @@ export type PracticeSessionSumAggregateOutputType = {
 export type PracticeSessionMinAggregateOutputType = {
   id: string | null
   skillId: string | null
+  projectId: string | null
   date: Date | null
   title: string | null
   description: string | null
@@ -47,6 +48,7 @@ export type PracticeSessionMinAggregateOutputType = {
 export type PracticeSessionMaxAggregateOutputType = {
   id: string | null
   skillId: string | null
+  projectId: string | null
   date: Date | null
   title: string | null
   description: string | null
@@ -57,6 +59,7 @@ export type PracticeSessionMaxAggregateOutputType = {
 export type PracticeSessionCountAggregateOutputType = {
   id: number
   skillId: number
+  projectId: number
   date: number
   title: number
   description: number
@@ -77,6 +80,7 @@ export type PracticeSessionSumAggregateInputType = {
 export type PracticeSessionMinAggregateInputType = {
   id?: true
   skillId?: true
+  projectId?: true
   date?: true
   title?: true
   description?: true
@@ -87,6 +91,7 @@ export type PracticeSessionMinAggregateInputType = {
 export type PracticeSessionMaxAggregateInputType = {
   id?: true
   skillId?: true
+  projectId?: true
   date?: true
   title?: true
   description?: true
@@ -97,6 +102,7 @@ export type PracticeSessionMaxAggregateInputType = {
 export type PracticeSessionCountAggregateInputType = {
   id?: true
   skillId?: true
+  projectId?: true
   date?: true
   title?: true
   description?: true
@@ -194,6 +200,7 @@ export type PracticeSessionGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 export type PracticeSessionGroupByOutputType = {
   id: string
   skillId: string
+  projectId: string | null
   date: Date
   title: string
   description: string | null
@@ -227,24 +234,28 @@ export type PracticeSessionWhereInput = {
   NOT?: Prisma.PracticeSessionWhereInput | Prisma.PracticeSessionWhereInput[]
   id?: Prisma.StringFilter<"PracticeSession"> | string
   skillId?: Prisma.StringFilter<"PracticeSession"> | string
+  projectId?: Prisma.StringNullableFilter<"PracticeSession"> | string | null
   date?: Prisma.DateTimeFilter<"PracticeSession"> | Date | string
   title?: Prisma.StringFilter<"PracticeSession"> | string
   description?: Prisma.StringNullableFilter<"PracticeSession"> | string | null
   durationMinutes?: Prisma.IntFilter<"PracticeSession"> | number
   createdAt?: Prisma.DateTimeFilter<"PracticeSession"> | Date | string
   skill?: Prisma.XOR<Prisma.SkillScalarRelationFilter, Prisma.SkillWhereInput>
+  project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   attachments?: Prisma.AttachmentListRelationFilter
 }
 
 export type PracticeSessionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   skillId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   skill?: Prisma.SkillOrderByWithRelationInput
+  project?: Prisma.ProjectOrderByWithRelationInput
   attachments?: Prisma.AttachmentOrderByRelationAggregateInput
 }
 
@@ -254,18 +265,21 @@ export type PracticeSessionWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PracticeSessionWhereInput[]
   NOT?: Prisma.PracticeSessionWhereInput | Prisma.PracticeSessionWhereInput[]
   skillId?: Prisma.StringFilter<"PracticeSession"> | string
+  projectId?: Prisma.StringNullableFilter<"PracticeSession"> | string | null
   date?: Prisma.DateTimeFilter<"PracticeSession"> | Date | string
   title?: Prisma.StringFilter<"PracticeSession"> | string
   description?: Prisma.StringNullableFilter<"PracticeSession"> | string | null
   durationMinutes?: Prisma.IntFilter<"PracticeSession"> | number
   createdAt?: Prisma.DateTimeFilter<"PracticeSession"> | Date | string
   skill?: Prisma.XOR<Prisma.SkillScalarRelationFilter, Prisma.SkillWhereInput>
+  project?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   attachments?: Prisma.AttachmentListRelationFilter
 }, "id">
 
 export type PracticeSessionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   skillId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   date?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -284,6 +298,7 @@ export type PracticeSessionScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PracticeSessionScalarWhereWithAggregatesInput | Prisma.PracticeSessionScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PracticeSession"> | string
   skillId?: Prisma.StringWithAggregatesFilter<"PracticeSession"> | string
+  projectId?: Prisma.StringNullableWithAggregatesFilter<"PracticeSession"> | string | null
   date?: Prisma.DateTimeWithAggregatesFilter<"PracticeSession"> | Date | string
   title?: Prisma.StringWithAggregatesFilter<"PracticeSession"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"PracticeSession"> | string | null
@@ -299,12 +314,14 @@ export type PracticeSessionCreateInput = {
   durationMinutes: number
   createdAt?: Date | string
   skill: Prisma.SkillCreateNestedOneWithoutSessionsInput
+  project?: Prisma.ProjectCreateNestedOneWithoutSessionsInput
   attachments?: Prisma.AttachmentCreateNestedManyWithoutPracticeSessionInput
 }
 
 export type PracticeSessionUncheckedCreateInput = {
   id?: string
   skillId: string
+  projectId?: string | null
   date: Date | string
   title: string
   description?: string | null
@@ -321,12 +338,14 @@ export type PracticeSessionUpdateInput = {
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   skill?: Prisma.SkillUpdateOneRequiredWithoutSessionsNestedInput
+  project?: Prisma.ProjectUpdateOneWithoutSessionsNestedInput
   attachments?: Prisma.AttachmentUpdateManyWithoutPracticeSessionNestedInput
 }
 
 export type PracticeSessionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   skillId?: Prisma.StringFieldUpdateOperationsInput | string
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -338,6 +357,7 @@ export type PracticeSessionUncheckedUpdateInput = {
 export type PracticeSessionCreateManyInput = {
   id?: string
   skillId: string
+  projectId?: string | null
   date: Date | string
   title: string
   description?: string | null
@@ -357,6 +377,7 @@ export type PracticeSessionUpdateManyMutationInput = {
 export type PracticeSessionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   skillId?: Prisma.StringFieldUpdateOperationsInput | string
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -377,6 +398,7 @@ export type PracticeSessionOrderByRelationAggregateInput = {
 export type PracticeSessionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   skillId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -391,6 +413,7 @@ export type PracticeSessionAvgOrderByAggregateInput = {
 export type PracticeSessionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   skillId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -401,6 +424,7 @@ export type PracticeSessionMaxOrderByAggregateInput = {
 export type PracticeSessionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   skillId?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   date?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
@@ -459,6 +483,48 @@ export type PracticeSessionUncheckedUpdateManyWithoutSkillNestedInput = {
   deleteMany?: Prisma.PracticeSessionScalarWhereInput | Prisma.PracticeSessionScalarWhereInput[]
 }
 
+export type PracticeSessionCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.PracticeSessionCreateWithoutProjectInput, Prisma.PracticeSessionUncheckedCreateWithoutProjectInput> | Prisma.PracticeSessionCreateWithoutProjectInput[] | Prisma.PracticeSessionUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.PracticeSessionCreateOrConnectWithoutProjectInput | Prisma.PracticeSessionCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.PracticeSessionCreateManyProjectInputEnvelope
+  connect?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+}
+
+export type PracticeSessionUncheckedCreateNestedManyWithoutProjectInput = {
+  create?: Prisma.XOR<Prisma.PracticeSessionCreateWithoutProjectInput, Prisma.PracticeSessionUncheckedCreateWithoutProjectInput> | Prisma.PracticeSessionCreateWithoutProjectInput[] | Prisma.PracticeSessionUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.PracticeSessionCreateOrConnectWithoutProjectInput | Prisma.PracticeSessionCreateOrConnectWithoutProjectInput[]
+  createMany?: Prisma.PracticeSessionCreateManyProjectInputEnvelope
+  connect?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+}
+
+export type PracticeSessionUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.PracticeSessionCreateWithoutProjectInput, Prisma.PracticeSessionUncheckedCreateWithoutProjectInput> | Prisma.PracticeSessionCreateWithoutProjectInput[] | Prisma.PracticeSessionUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.PracticeSessionCreateOrConnectWithoutProjectInput | Prisma.PracticeSessionCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.PracticeSessionUpsertWithWhereUniqueWithoutProjectInput | Prisma.PracticeSessionUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.PracticeSessionCreateManyProjectInputEnvelope
+  set?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+  disconnect?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+  delete?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+  connect?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+  update?: Prisma.PracticeSessionUpdateWithWhereUniqueWithoutProjectInput | Prisma.PracticeSessionUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.PracticeSessionUpdateManyWithWhereWithoutProjectInput | Prisma.PracticeSessionUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.PracticeSessionScalarWhereInput | Prisma.PracticeSessionScalarWhereInput[]
+}
+
+export type PracticeSessionUncheckedUpdateManyWithoutProjectNestedInput = {
+  create?: Prisma.XOR<Prisma.PracticeSessionCreateWithoutProjectInput, Prisma.PracticeSessionUncheckedCreateWithoutProjectInput> | Prisma.PracticeSessionCreateWithoutProjectInput[] | Prisma.PracticeSessionUncheckedCreateWithoutProjectInput[]
+  connectOrCreate?: Prisma.PracticeSessionCreateOrConnectWithoutProjectInput | Prisma.PracticeSessionCreateOrConnectWithoutProjectInput[]
+  upsert?: Prisma.PracticeSessionUpsertWithWhereUniqueWithoutProjectInput | Prisma.PracticeSessionUpsertWithWhereUniqueWithoutProjectInput[]
+  createMany?: Prisma.PracticeSessionCreateManyProjectInputEnvelope
+  set?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+  disconnect?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+  delete?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+  connect?: Prisma.PracticeSessionWhereUniqueInput | Prisma.PracticeSessionWhereUniqueInput[]
+  update?: Prisma.PracticeSessionUpdateWithWhereUniqueWithoutProjectInput | Prisma.PracticeSessionUpdateWithWhereUniqueWithoutProjectInput[]
+  updateMany?: Prisma.PracticeSessionUpdateManyWithWhereWithoutProjectInput | Prisma.PracticeSessionUpdateManyWithWhereWithoutProjectInput[]
+  deleteMany?: Prisma.PracticeSessionScalarWhereInput | Prisma.PracticeSessionScalarWhereInput[]
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
@@ -488,11 +554,13 @@ export type PracticeSessionCreateWithoutSkillInput = {
   description?: string | null
   durationMinutes: number
   createdAt?: Date | string
+  project?: Prisma.ProjectCreateNestedOneWithoutSessionsInput
   attachments?: Prisma.AttachmentCreateNestedManyWithoutPracticeSessionInput
 }
 
 export type PracticeSessionUncheckedCreateWithoutSkillInput = {
   id?: string
+  projectId?: string | null
   date: Date | string
   title: string
   description?: string | null
@@ -533,11 +601,60 @@ export type PracticeSessionScalarWhereInput = {
   NOT?: Prisma.PracticeSessionScalarWhereInput | Prisma.PracticeSessionScalarWhereInput[]
   id?: Prisma.StringFilter<"PracticeSession"> | string
   skillId?: Prisma.StringFilter<"PracticeSession"> | string
+  projectId?: Prisma.StringNullableFilter<"PracticeSession"> | string | null
   date?: Prisma.DateTimeFilter<"PracticeSession"> | Date | string
   title?: Prisma.StringFilter<"PracticeSession"> | string
   description?: Prisma.StringNullableFilter<"PracticeSession"> | string | null
   durationMinutes?: Prisma.IntFilter<"PracticeSession"> | number
   createdAt?: Prisma.DateTimeFilter<"PracticeSession"> | Date | string
+}
+
+export type PracticeSessionCreateWithoutProjectInput = {
+  id?: string
+  date: Date | string
+  title: string
+  description?: string | null
+  durationMinutes: number
+  createdAt?: Date | string
+  skill: Prisma.SkillCreateNestedOneWithoutSessionsInput
+  attachments?: Prisma.AttachmentCreateNestedManyWithoutPracticeSessionInput
+}
+
+export type PracticeSessionUncheckedCreateWithoutProjectInput = {
+  id?: string
+  skillId: string
+  date: Date | string
+  title: string
+  description?: string | null
+  durationMinutes: number
+  createdAt?: Date | string
+  attachments?: Prisma.AttachmentUncheckedCreateNestedManyWithoutPracticeSessionInput
+}
+
+export type PracticeSessionCreateOrConnectWithoutProjectInput = {
+  where: Prisma.PracticeSessionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PracticeSessionCreateWithoutProjectInput, Prisma.PracticeSessionUncheckedCreateWithoutProjectInput>
+}
+
+export type PracticeSessionCreateManyProjectInputEnvelope = {
+  data: Prisma.PracticeSessionCreateManyProjectInput | Prisma.PracticeSessionCreateManyProjectInput[]
+  skipDuplicates?: boolean
+}
+
+export type PracticeSessionUpsertWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.PracticeSessionWhereUniqueInput
+  update: Prisma.XOR<Prisma.PracticeSessionUpdateWithoutProjectInput, Prisma.PracticeSessionUncheckedUpdateWithoutProjectInput>
+  create: Prisma.XOR<Prisma.PracticeSessionCreateWithoutProjectInput, Prisma.PracticeSessionUncheckedCreateWithoutProjectInput>
+}
+
+export type PracticeSessionUpdateWithWhereUniqueWithoutProjectInput = {
+  where: Prisma.PracticeSessionWhereUniqueInput
+  data: Prisma.XOR<Prisma.PracticeSessionUpdateWithoutProjectInput, Prisma.PracticeSessionUncheckedUpdateWithoutProjectInput>
+}
+
+export type PracticeSessionUpdateManyWithWhereWithoutProjectInput = {
+  where: Prisma.PracticeSessionScalarWhereInput
+  data: Prisma.XOR<Prisma.PracticeSessionUpdateManyMutationInput, Prisma.PracticeSessionUncheckedUpdateManyWithoutProjectInput>
 }
 
 export type PracticeSessionCreateWithoutAttachmentsInput = {
@@ -548,11 +665,13 @@ export type PracticeSessionCreateWithoutAttachmentsInput = {
   durationMinutes: number
   createdAt?: Date | string
   skill: Prisma.SkillCreateNestedOneWithoutSessionsInput
+  project?: Prisma.ProjectCreateNestedOneWithoutSessionsInput
 }
 
 export type PracticeSessionUncheckedCreateWithoutAttachmentsInput = {
   id?: string
   skillId: string
+  projectId?: string | null
   date: Date | string
   title: string
   description?: string | null
@@ -584,11 +703,13 @@ export type PracticeSessionUpdateWithoutAttachmentsInput = {
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   skill?: Prisma.SkillUpdateOneRequiredWithoutSessionsNestedInput
+  project?: Prisma.ProjectUpdateOneWithoutSessionsNestedInput
 }
 
 export type PracticeSessionUncheckedUpdateWithoutAttachmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   skillId?: Prisma.StringFieldUpdateOperationsInput | string
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -598,6 +719,7 @@ export type PracticeSessionUncheckedUpdateWithoutAttachmentsInput = {
 
 export type PracticeSessionCreateManySkillInput = {
   id?: string
+  projectId?: string | null
   date: Date | string
   title: string
   description?: string | null
@@ -612,11 +734,13 @@ export type PracticeSessionUpdateWithoutSkillInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneWithoutSessionsNestedInput
   attachments?: Prisma.AttachmentUpdateManyWithoutPracticeSessionNestedInput
 }
 
 export type PracticeSessionUncheckedUpdateWithoutSkillInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -627,6 +751,49 @@ export type PracticeSessionUncheckedUpdateWithoutSkillInput = {
 
 export type PracticeSessionUncheckedUpdateManyWithoutSkillInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  projectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PracticeSessionCreateManyProjectInput = {
+  id?: string
+  skillId: string
+  date: Date | string
+  title: string
+  description?: string | null
+  durationMinutes: number
+  createdAt?: Date | string
+}
+
+export type PracticeSessionUpdateWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  skill?: Prisma.SkillUpdateOneRequiredWithoutSessionsNestedInput
+  attachments?: Prisma.AttachmentUpdateManyWithoutPracticeSessionNestedInput
+}
+
+export type PracticeSessionUncheckedUpdateWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  skillId?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attachments?: Prisma.AttachmentUncheckedUpdateManyWithoutPracticeSessionNestedInput
+}
+
+export type PracticeSessionUncheckedUpdateManyWithoutProjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  skillId?: Prisma.StringFieldUpdateOperationsInput | string
   date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -668,12 +835,14 @@ export type PracticeSessionCountOutputTypeCountAttachmentsArgs<ExtArgs extends r
 export type PracticeSessionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   skillId?: boolean
+  projectId?: boolean
   date?: boolean
   title?: boolean
   description?: boolean
   durationMinutes?: boolean
   createdAt?: boolean
   skill?: boolean | Prisma.SkillDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.PracticeSession$projectArgs<ExtArgs>
   attachments?: boolean | Prisma.PracticeSession$attachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.PracticeSessionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["practiceSession"]>
@@ -681,28 +850,33 @@ export type PracticeSessionSelect<ExtArgs extends runtime.Types.Extensions.Inter
 export type PracticeSessionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   skillId?: boolean
+  projectId?: boolean
   date?: boolean
   title?: boolean
   description?: boolean
   durationMinutes?: boolean
   createdAt?: boolean
   skill?: boolean | Prisma.SkillDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.PracticeSession$projectArgs<ExtArgs>
 }, ExtArgs["result"]["practiceSession"]>
 
 export type PracticeSessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   skillId?: boolean
+  projectId?: boolean
   date?: boolean
   title?: boolean
   description?: boolean
   durationMinutes?: boolean
   createdAt?: boolean
   skill?: boolean | Prisma.SkillDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.PracticeSession$projectArgs<ExtArgs>
 }, ExtArgs["result"]["practiceSession"]>
 
 export type PracticeSessionSelectScalar = {
   id?: boolean
   skillId?: boolean
+  projectId?: boolean
   date?: boolean
   title?: boolean
   description?: boolean
@@ -710,28 +884,33 @@ export type PracticeSessionSelectScalar = {
   createdAt?: boolean
 }
 
-export type PracticeSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "skillId" | "date" | "title" | "description" | "durationMinutes" | "createdAt", ExtArgs["result"]["practiceSession"]>
+export type PracticeSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "skillId" | "projectId" | "date" | "title" | "description" | "durationMinutes" | "createdAt", ExtArgs["result"]["practiceSession"]>
 export type PracticeSessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   skill?: boolean | Prisma.SkillDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.PracticeSession$projectArgs<ExtArgs>
   attachments?: boolean | Prisma.PracticeSession$attachmentsArgs<ExtArgs>
   _count?: boolean | Prisma.PracticeSessionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PracticeSessionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   skill?: boolean | Prisma.SkillDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.PracticeSession$projectArgs<ExtArgs>
 }
 export type PracticeSessionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   skill?: boolean | Prisma.SkillDefaultArgs<ExtArgs>
+  project?: boolean | Prisma.PracticeSession$projectArgs<ExtArgs>
 }
 
 export type $PracticeSessionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PracticeSession"
   objects: {
     skill: Prisma.$SkillPayload<ExtArgs>
+    project: Prisma.$ProjectPayload<ExtArgs> | null
     attachments: Prisma.$AttachmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     skillId: string
+    projectId: string | null
     date: Date
     title: string
     description: string | null
@@ -1132,6 +1311,7 @@ readonly fields: PracticeSessionFieldRefs;
 export interface Prisma__PracticeSessionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   skill<T extends Prisma.SkillDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SkillDefaultArgs<ExtArgs>>): Prisma.Prisma__SkillClient<runtime.Types.Result.GetResult<Prisma.$SkillPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  project<T extends Prisma.PracticeSession$projectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PracticeSession$projectArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   attachments<T extends Prisma.PracticeSession$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PracticeSession$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1164,6 +1344,7 @@ export interface Prisma__PracticeSessionClient<T, Null = never, ExtArgs extends 
 export interface PracticeSessionFieldRefs {
   readonly id: Prisma.FieldRef<"PracticeSession", 'String'>
   readonly skillId: Prisma.FieldRef<"PracticeSession", 'String'>
+  readonly projectId: Prisma.FieldRef<"PracticeSession", 'String'>
   readonly date: Prisma.FieldRef<"PracticeSession", 'DateTime'>
   readonly title: Prisma.FieldRef<"PracticeSession", 'String'>
   readonly description: Prisma.FieldRef<"PracticeSession", 'String'>
@@ -1567,6 +1748,25 @@ export type PracticeSessionDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many PracticeSessions to delete.
    */
   limit?: number
+}
+
+/**
+ * PracticeSession.project
+ */
+export type PracticeSession$projectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
 }
 
 /**

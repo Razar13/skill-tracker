@@ -33,7 +33,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => null);
-  const { skillId, title, description, durationMinutes, date } = body || {};
+  const { skillId, projectId, title, description, durationMinutes, date } = body || {};
 
   if (!skillId || !title || !durationMinutes) {
     return NextResponse.json(
@@ -42,7 +42,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Ensure user owns this skill
   const skill = await prisma.skill.findFirst({
     where: { id: skillId, userId: session.user.id },
   });
@@ -51,9 +50,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Skill not found." }, { status: 404 });
   }
 
+  let validProjectId: string | null = null;
+  if (projectId) {
+    const project = await prisma.project.findFirst({
+      where: { id: projectId, skillId },
+    });
+    if (!project) {
+      return NextResponse.json({ error: "Project not found." }, { status: 404 });
+    }
+    validProjectId = project.id;
+  }
+
   const practiceSession = await prisma.practiceSession.create({
     data: {
       skillId,
+      projectId: validProjectId,
       title: title.trim(),
       description: description?.trim() || null,
       durationMinutes: Number(durationMinutes),

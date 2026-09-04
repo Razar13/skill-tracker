@@ -56,6 +56,7 @@ export const ModelName = {
   Account: 'Account',
   Verification: 'Verification',
   Skill: 'Skill',
+  Project: 'Project',
   PracticeSession: 'PracticeSession',
   Attachment: 'Attachment'
 } as const
@@ -146,9 +147,21 @@ export const SkillScalarFieldEnum = {
 export type SkillScalarFieldEnum = (typeof SkillScalarFieldEnum)[keyof typeof SkillScalarFieldEnum]
 
 
+export const ProjectScalarFieldEnum = {
+  id: 'id',
+  skillId: 'skillId',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
 export const PracticeSessionScalarFieldEnum = {
   id: 'id',
   skillId: 'skillId',
+  projectId: 'projectId',
   date: 'date',
   title: 'title',
   description: 'description',

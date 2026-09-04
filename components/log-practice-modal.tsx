@@ -7,9 +7,16 @@ interface Skill {
   name: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+}
+
 interface LogPracticeModalProps {
   isOpen: boolean;
   skills: Skill[];
+  projects?: Project[];
+  lockedSkillId?: string;
   onClose: () => void;
   onSessionLogged: () => void;
 }
@@ -17,10 +24,13 @@ interface LogPracticeModalProps {
 export default function LogPracticeModal({
   isOpen,
   skills,
+  projects = [],
+  lockedSkillId,
   onClose,
   onSessionLogged,
 }: LogPracticeModalProps) {
-  const [skillId, setSkillId] = useState(skills[0]?.id || "");
+  const [skillId, setSkillId] = useState(lockedSkillId || skills[0]?.id || "");
+  const [projectId, setProjectId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(30);
@@ -29,6 +39,8 @@ export default function LogPracticeModal({
   const [error, setError] = useState<string | null>(null);
 
   if (!isOpen) return null;
+
+  const effectiveSkillId = lockedSkillId || skillId || skills[0]?.id;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -40,7 +52,8 @@ export default function LogPracticeModal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          skillId: skillId || skills[0]?.id,
+          skillId: effectiveSkillId,
+          projectId: projectId || null,
           title,
           description,
           durationMinutes,
@@ -55,6 +68,7 @@ export default function LogPracticeModal({
 
       setTitle("");
       setDescription("");
+      setProjectId("");
       onSessionLogged();
       onClose();
     } catch (err: any) {
@@ -72,20 +86,40 @@ export default function LogPracticeModal({
         {error && <div className="p-3 mb-4 text-sm text-red-600 bg-red-50 rounded-lg">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Select Skill</label>
-            <select
-              value={skillId || skills[0]?.id}
-              onChange={(e) => setSkillId(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {skills.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {!lockedSkillId && (
+            <div>
+              <label className="block text-sm font-medium mb-1">Select Skill</label>
+              <select
+                value={skillId || skills[0]?.id}
+                onChange={(e) => setSkillId(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {skills.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {lockedSkillId && projects.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium mb-1">Project (Optional)</label>
+              <select
+                value={projectId}
+                onChange={(e) => setProjectId(e.target.value)}
+                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">No project</option>
+                {projects.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium mb-1">Title</label>
@@ -144,7 +178,7 @@ export default function LogPracticeModal({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || skills.length === 0}
+              disabled={isSubmitting || (!lockedSkillId && skills.length === 0)}
               className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
             >
               {isSubmitting ? "Saving..." : "Log Session"}

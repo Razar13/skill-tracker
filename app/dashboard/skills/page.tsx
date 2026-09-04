@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import AddSkillModal from "@/components/add-skill-modal";
+import Link from "next/link";
 
 interface Skill {
   id: string;
@@ -159,9 +160,12 @@ export default function MySkillsPage() {
                   </div>
 
                   <div className="mt-auto pt-4 border-t border-zinc-800/50">
-                    <button className="text-amber-500 text-sm font-medium hover:text-amber-400 transition-colors flex items-center gap-1">
+                    <Link
+                      href={`/dashboard/skills/${skill.id}`}
+                      className="text-amber-500 text-sm font-medium hover:text-amber-400 transition-colors flex items-center gap-1"
+                    >
                       View Details <span>→</span>
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
