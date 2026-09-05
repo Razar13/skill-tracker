@@ -3,48 +3,67 @@
 import { useMemo } from "react";
 
 interface PracticeSession {
+  id?: string;
   durationMinutes: number;
   date: string;
 }
 
 interface SkillHeatmapProps {
   sessions: PracticeSession[];
-  weeks?: number;
 }
 
-export default function SkillHeatmap({ sessions, weeks = 26 }: SkillHeatmapProps) {
-  const { days, months } = useMemo(() => {
+interface DayCell {
+  dateStr: string;
+  isFuture: boolean;
+}
+
+export default function SkillHeatmap({ sessions }: SkillHeatmapProps) {
+  const currentYear = new Date().getFullYear();
+
+  const { days, months, weeksCount } = useMemo(() => {
+    const dates: (DayCell | null)[] = [];
+    const monthLabels: { label: string; week: number }[] = [];
+
+    const start = new Date(currentYear, 0, 1);
+    const end = new Date(currentYear, 11, 31);
+
     const today = new Date();
     today.setHours(23, 59, 59, 999);
 
-    const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
-    const end = new Date(today);
-    const start = new Date(today);
-    start.setDate(start.getDate() - dayOfWeek - (weeks - 1) * 7);
+    // Pad so Jan 1 lands in the correct weekday row (Mon = 0 ... Sun = 6)
+    const startDay = start.getDay() === 0 ? 6 : start.getDay() - 1;
+    for (let i = 0; i < startDay; i++) {
+      dates.push(null);
+    }
 
-    const dates: ({ dateStr: string; isFuture: boolean } | null)[] = [];
-    const monthLabels: { label: string; index: number }[] = [];
     let lastMonth = -1;
-
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const current = new Date(d);
-      const dateStr = current.toISOString().split("T")[0];
-      const isFuture = current > today;
+      const dateStr = new Date(d).toISOString().split("T")[0];
+      const isFuture = d > today;
       dates.push({ dateStr, isFuture });
 
-      if (current.getDate() === 1 || dates.length === 1) {
-        const colIndex = Math.floor((dates.length - 1) / 7);
-        if (current.getMonth() !== lastMonth) {
-          monthLabels.push({
-            label: current.toLocaleString("en-US", { month: "short" }),
-            index: colIndex,
-          });
-          lastMonth = current.getMonth();
-        }
+      if (d.getMonth() !== lastMonth) {
+        const week = Math.floor((dates.length - 1) / 7);
+        monthLabels.push({
+          label: d.toLocaleString("en-US", { month: "short" }),
+          week,
+        });
+        lastMonth = d.getMonth();
       }
     }
-    return { days: dates, months: monthLabels };
-  }, [weeks]);
+
+    // Pad the end so the final column is a full week too — this is what
+    // guarantees December's column reaches all the way to the right edge.
+    while (dates.length % 7 !== 0) {
+      dates.push(null);
+    }
+
+    return {
+      days: dates,
+      months: monthLabels,
+      weeksCount: dates.length / 7,
+    };
+  }, [currentYear]);
 
   const sessionsByDate = useMemo(() => {
     const map: Record<string, number> = {};
@@ -65,6 +84,7 @@ export default function SkillHeatmap({ sessions, weeks = 26 }: SkillHeatmapProps
 
   return (
     <div className="w-full">
+      {/* Header and Color Legend */}
       <div className="flex justify-between items-end mb-4">
         <h3 className="text-lg font-bold text-white tracking-wide">Practice Consistency</h3>
         <div className="flex items-center gap-2 text-xs text-zinc-500 font-medium">
@@ -80,42 +100,54 @@ export default function SkillHeatmap({ sessions, weeks = 26 }: SkillHeatmapProps
         </div>
       </div>
 
-      <div className="overflow-x-auto pb-2 scrollbar-hide">
-        <div className="min-w-max">
-          <div className="grid grid-rows-7 grid-flow-col gap-[3px]">
-            {days.map((day, i) => {
-              if (!day || day.isFuture) {
-                return (
-                  <div
-                    key={day ? day.dateStr : `pad-${i}`}
-                    className="w-3.5 h-3.5 bg-transparent"
-                  />
-                );
-              }
-              const totalMins = sessionsByDate[day.dateStr] || 0;
-              return (
-                <div
-                  key={day.dateStr}
-                  title={`${day.dateStr}: ${totalMins} mins`}
-                  className={`w-3.5 h-3.5 rounded-[2px] transition-colors hover:ring-1 hover:ring-zinc-400 ${getIntensityClass(
-                    totalMins
-                  )}`}
-                />
-              );
-            })}
-          </div>
-          <div className="flex relative w-full h-4 mt-3">
-            {months.map((m, i) => (
-              <span
-                key={i}
-                className="absolute text-[11px] text-zinc-500 font-medium tracking-wide"
-                style={{ left: `${m.index * 17}px` }}
-              >
-                {m.label}
-              </span>
-            ))}
-          </div>
-        </div>
+      {/*
+        One shared grid for month labels + day cells, so they're always
+        pixel-aligned. Columns are fractional (1fr each) instead of a fixed
+        px width, so the whole heatmap stretches to fill the card and the
+        last column (December) always sits flush against the right edge.
+      */}
+      <div
+        className="grid w-full gap-[3px]"
+        style={{
+          gridTemplateColumns: `repeat(${weeksCount}, minmax(0, 1fr))`,
+          gridTemplateRows: "auto repeat(7, 1fr)",
+        }}
+      >
+        {/* Month labels */}
+        {months.map((m) => (
+          <span
+            key={`${m.label}-${m.week}`}
+            className="text-[11px] text-zinc-500 font-medium tracking-wide mb-1"
+            style={{ gridColumn: m.week + 1, gridRow: 1 }}
+          >
+            {m.label}
+          </span>
+        ))}
+
+        {/* Day cells */}
+        {days.map((day, i) => {
+          const week = Math.floor(i / 7) + 1;
+          const weekday = (i % 7) + 2; // row 1 is reserved for month labels
+
+          if (!day || day.isFuture) {
+            return (
+              <div
+                key={day ? day.dateStr : `pad-${i}`}
+                style={{ gridColumn: week, gridRow: weekday }}
+              />
+            );
+          }
+
+          const totalMins = sessionsByDate[day.dateStr] || 0;
+          return (
+            <div
+              key={day.dateStr}
+              title={`${day.dateStr}: ${totalMins} mins`}
+              style={{ gridColumn: week, gridRow: weekday }}
+              className={`aspect-square rounded-[2px] transition-colors hover:ring-1 hover:ring-zinc-400 ${getIntensityClass(totalMins)}`}
+            />
+          );
+        })}
       </div>
     </div>
   );

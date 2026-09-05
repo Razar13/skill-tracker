@@ -1119,6 +1119,7 @@ export const SkillScalarFieldEnum = {
   userId: 'userId',
   name: 'name',
   color: 'color',
+  level: 'level',
   createdAt: 'createdAt'
 } as const
 

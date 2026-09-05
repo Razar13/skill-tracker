@@ -80,6 +80,7 @@ model Skill {
   user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   name      String
   color     String
+  level     String            @default("Beginner")
   createdAt DateTime          @default(now())
   sessions  PracticeSession[]
   projects  Project[]

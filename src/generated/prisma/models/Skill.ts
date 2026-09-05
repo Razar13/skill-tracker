@@ -29,6 +29,7 @@ export type SkillMinAggregateOutputType = {
   userId: string | null
   name: string | null
   color: string | null
+  level: string | null
   createdAt: Date | null
 }
 
@@ -37,6 +38,7 @@ export type SkillMaxAggregateOutputType = {
   userId: string | null
   name: string | null
   color: string | null
+  level: string | null
   createdAt: Date | null
 }
 
@@ -45,6 +47,7 @@ export type SkillCountAggregateOutputType = {
   userId: number
   name: number
   color: number
+  level: number
   createdAt: number
   _all: number
 }
@@ -55,6 +58,7 @@ export type SkillMinAggregateInputType = {
   userId?: true
   name?: true
   color?: true
+  level?: true
   createdAt?: true
 }
 
@@ -63,6 +67,7 @@ export type SkillMaxAggregateInputType = {
   userId?: true
   name?: true
   color?: true
+  level?: true
   createdAt?: true
 }
 
@@ -71,6 +76,7 @@ export type SkillCountAggregateInputType = {
   userId?: true
   name?: true
   color?: true
+  level?: true
   createdAt?: true
   _all?: true
 }
@@ -152,6 +158,7 @@ export type SkillGroupByOutputType = {
   userId: string
   name: string
   color: string
+  level: string
   createdAt: Date
   _count: SkillCountAggregateOutputType | null
   _min: SkillMinAggregateOutputType | null
@@ -181,6 +188,7 @@ export type SkillWhereInput = {
   userId?: Prisma.StringFilter<"Skill"> | string
   name?: Prisma.StringFilter<"Skill"> | string
   color?: Prisma.StringFilter<"Skill"> | string
+  level?: Prisma.StringFilter<"Skill"> | string
   createdAt?: Prisma.DateTimeFilter<"Skill"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   sessions?: Prisma.PracticeSessionListRelationFilter
@@ -192,6 +200,7 @@ export type SkillOrderByWithRelationInput = {
   userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  level?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   sessions?: Prisma.PracticeSessionOrderByRelationAggregateInput
@@ -206,6 +215,7 @@ export type SkillWhereUniqueInput = Prisma.AtLeast<{
   userId?: Prisma.StringFilter<"Skill"> | string
   name?: Prisma.StringFilter<"Skill"> | string
   color?: Prisma.StringFilter<"Skill"> | string
+  level?: Prisma.StringFilter<"Skill"> | string
   createdAt?: Prisma.DateTimeFilter<"Skill"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   sessions?: Prisma.PracticeSessionListRelationFilter
@@ -217,6 +227,7 @@ export type SkillOrderByWithAggregationInput = {
   userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  level?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.SkillCountOrderByAggregateInput
   _max?: Prisma.SkillMaxOrderByAggregateInput
@@ -231,6 +242,7 @@ export type SkillScalarWhereWithAggregatesInput = {
   userId?: Prisma.StringWithAggregatesFilter<"Skill"> | string
   name?: Prisma.StringWithAggregatesFilter<"Skill"> | string
   color?: Prisma.StringWithAggregatesFilter<"Skill"> | string
+  level?: Prisma.StringWithAggregatesFilter<"Skill"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Skill"> | Date | string
 }
 
@@ -238,6 +250,7 @@ export type SkillCreateInput = {
   id?: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSkillsInput
   sessions?: Prisma.PracticeSessionCreateNestedManyWithoutSkillInput
@@ -249,6 +262,7 @@ export type SkillUncheckedCreateInput = {
   userId: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
   sessions?: Prisma.PracticeSessionUncheckedCreateNestedManyWithoutSkillInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSkillInput
@@ -258,6 +272,7 @@ export type SkillUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSkillsNestedInput
   sessions?: Prisma.PracticeSessionUpdateManyWithoutSkillNestedInput
@@ -269,6 +284,7 @@ export type SkillUncheckedUpdateInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.PracticeSessionUncheckedUpdateManyWithoutSkillNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutSkillNestedInput
@@ -279,6 +295,7 @@ export type SkillCreateManyInput = {
   userId: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
 }
 
@@ -286,6 +303,7 @@ export type SkillUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -294,6 +312,7 @@ export type SkillUncheckedUpdateManyInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -312,6 +331,7 @@ export type SkillCountOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  level?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -320,6 +340,7 @@ export type SkillMaxOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  level?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -328,6 +349,7 @@ export type SkillMinOrderByAggregateInput = {
   userId?: Prisma.SortOrder
   name?: Prisma.SortOrder
   color?: Prisma.SortOrder
+  level?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -410,6 +432,7 @@ export type SkillCreateWithoutUserInput = {
   id?: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
   sessions?: Prisma.PracticeSessionCreateNestedManyWithoutSkillInput
   projects?: Prisma.ProjectCreateNestedManyWithoutSkillInput
@@ -419,6 +442,7 @@ export type SkillUncheckedCreateWithoutUserInput = {
   id?: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
   sessions?: Prisma.PracticeSessionUncheckedCreateNestedManyWithoutSkillInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSkillInput
@@ -458,6 +482,7 @@ export type SkillScalarWhereInput = {
   userId?: Prisma.StringFilter<"Skill"> | string
   name?: Prisma.StringFilter<"Skill"> | string
   color?: Prisma.StringFilter<"Skill"> | string
+  level?: Prisma.StringFilter<"Skill"> | string
   createdAt?: Prisma.DateTimeFilter<"Skill"> | Date | string
 }
 
@@ -465,6 +490,7 @@ export type SkillCreateWithoutProjectsInput = {
   id?: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSkillsInput
   sessions?: Prisma.PracticeSessionCreateNestedManyWithoutSkillInput
@@ -475,6 +501,7 @@ export type SkillUncheckedCreateWithoutProjectsInput = {
   userId: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
   sessions?: Prisma.PracticeSessionUncheckedCreateNestedManyWithoutSkillInput
 }
@@ -499,6 +526,7 @@ export type SkillUpdateWithoutProjectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSkillsNestedInput
   sessions?: Prisma.PracticeSessionUpdateManyWithoutSkillNestedInput
@@ -509,6 +537,7 @@ export type SkillUncheckedUpdateWithoutProjectsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.PracticeSessionUncheckedUpdateManyWithoutSkillNestedInput
 }
@@ -517,6 +546,7 @@ export type SkillCreateWithoutSessionsInput = {
   id?: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutSkillsInput
   projects?: Prisma.ProjectCreateNestedManyWithoutSkillInput
@@ -527,6 +557,7 @@ export type SkillUncheckedCreateWithoutSessionsInput = {
   userId: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutSkillInput
 }
@@ -551,6 +582,7 @@ export type SkillUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutSkillsNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutSkillNestedInput
@@ -561,6 +593,7 @@ export type SkillUncheckedUpdateWithoutSessionsInput = {
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutSkillNestedInput
 }
@@ -569,6 +602,7 @@ export type SkillCreateManyUserInput = {
   id?: string
   name: string
   color: string
+  level?: string
   createdAt?: Date | string
 }
 
@@ -576,6 +610,7 @@ export type SkillUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.PracticeSessionUpdateManyWithoutSkillNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutSkillNestedInput
@@ -585,6 +620,7 @@ export type SkillUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.PracticeSessionUncheckedUpdateManyWithoutSkillNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutSkillNestedInput
@@ -594,6 +630,7 @@ export type SkillUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   color?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -642,6 +679,7 @@ export type SkillSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   userId?: boolean
   name?: boolean
   color?: boolean
+  level?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   sessions?: boolean | Prisma.Skill$sessionsArgs<ExtArgs>
@@ -654,6 +692,7 @@ export type SkillSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   userId?: boolean
   name?: boolean
   color?: boolean
+  level?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["skill"]>
@@ -663,6 +702,7 @@ export type SkillSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   userId?: boolean
   name?: boolean
   color?: boolean
+  level?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["skill"]>
@@ -672,10 +712,11 @@ export type SkillSelectScalar = {
   userId?: boolean
   name?: boolean
   color?: boolean
+  level?: boolean
   createdAt?: boolean
 }
 
-export type SkillOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "color" | "createdAt", ExtArgs["result"]["skill"]>
+export type SkillOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "color" | "level" | "createdAt", ExtArgs["result"]["skill"]>
 export type SkillInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   sessions?: boolean | Prisma.Skill$sessionsArgs<ExtArgs>
@@ -701,6 +742,7 @@ export type $SkillPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     userId: string
     name: string
     color: string
+    level: string
     createdAt: Date
   }, ExtArgs["result"]["skill"]>
   composites: {}
@@ -1132,6 +1174,7 @@ export interface SkillFieldRefs {
   readonly userId: Prisma.FieldRef<"Skill", 'String'>
   readonly name: Prisma.FieldRef<"Skill", 'String'>
   readonly color: Prisma.FieldRef<"Skill", 'String'>
+  readonly level: Prisma.FieldRef<"Skill", 'String'>
   readonly createdAt: Prisma.FieldRef<"Skill", 'DateTime'>
 }
     

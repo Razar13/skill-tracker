@@ -35,6 +35,8 @@ export async function GET(
   return NextResponse.json(skill);
 }
 
+const ALLOWED_LEVELS = ["Beginner", "Intermediate", "Expert"];
+
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -45,28 +47,51 @@ export async function PATCH(
   }
 
   const { id } = await params;
-  const body = await request.json().catch(() => null);
-  const name = typeof body?.name === "string" ? body.name.trim() : "";
-  const color = typeof body?.color === "string" ? body.color.trim() : "";
 
-  if (!name || !/^#[0-9a-fA-F]{6}$/.test(color)) {
-    return NextResponse.json({ error: "Invalid data." }, { status: 400 });
-  }
-
-  // Ensure user owns this skill
   const existingSkill = await prisma.skill.findFirst({
     where: { id, userId: session.user.id },
   });
-
   if (!existingSkill) {
     return NextResponse.json({ error: "Skill not found." }, { status: 404 });
   }
 
-  const updatedSkill = await prisma.skill.update({
-    where: { id },
-    data: { name, color },
-  });
+  const body = await request.json().catch(() => null);
+  const data: { name?: string; color?: string; level?: string } = {};
 
+  if (body?.name !== undefined) {
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    if (!name) {
+      return NextResponse.json({ error: "Name cannot be empty." }, { status: 400 });
+    }
+    if (name.length > 50) {
+      return NextResponse.json(
+        { error: "Name must be 50 characters or fewer." },
+        { status: 400 }
+      );
+    }
+    data.name = name;
+  }
+
+  if (body?.color !== undefined) {
+    const color = typeof body.color === "string" ? body.color.trim() : "";
+    if (!/^#[0-9a-fA-F]{6}$/.test(color)) {
+      return NextResponse.json({ error: "Invalid color." }, { status: 400 });
+    }
+    data.color = color;
+  }
+
+  if (body?.level !== undefined) {
+    if (!ALLOWED_LEVELS.includes(body.level)) {
+      return NextResponse.json({ error: "Invalid level." }, { status: 400 });
+    }
+    data.level = body.level;
+  }
+
+  if (Object.keys(data).length === 0) {
+    return NextResponse.json({ error: "Nothing to update." }, { status: 400 });
+  }
+
+  const updatedSkill = await prisma.skill.update({ where: { id }, data });
   return NextResponse.json(updatedSkill);
 }
 
