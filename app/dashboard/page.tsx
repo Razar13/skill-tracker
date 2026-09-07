@@ -6,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 import AddSkillModal from "@/components/add-skill-modal";
 import LogPracticeModal from "@/components/log-practice-modal";
 import CalendarGrid from "@/components/calendar-grid";
+import Link from "next/link";
 
 interface Skill {
   id: string;
@@ -32,7 +33,6 @@ export default function DashboardPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [sessions, setSessions] = useState<PracticeSession[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
   const [isLogPracticeOpen, setIsLogPracticeOpen] = useState(false);
 
   const fetchSkills = useCallback(async () => {
@@ -145,12 +145,12 @@ export default function DashboardPage() {
           <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-lg font-bold text-white">My Skills</h2>
-              <button
-                onClick={() => setIsAddSkillOpen(true)}
+              <Link
+                href="/dashboard/skills/new"
                 className="px-3 py-1.5 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 text-xs font-medium rounded transition-colors"
               >
                 + Add New Skill
-              </button>
+              </Link>
             </div>
 
             <div className="space-y-6">
@@ -248,7 +248,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <AddSkillModal isOpen={isAddSkillOpen} onClose={() => setIsAddSkillOpen(false)} onSkillAdded={() => { fetchSkills(); }} />
       <LogPracticeModal isOpen={isLogPracticeOpen} skills={skills} onClose={() => setIsLogPracticeOpen(false)} onSessionLogged={() => { fetchSkills(); fetchSessions(); }} />
     </main>
   );

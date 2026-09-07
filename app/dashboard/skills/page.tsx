@@ -99,24 +99,24 @@ export default function MySkillsPage() {
             Grow your musicianship. Keep your practice focused and consistent.
           </p>
         </div>
-        <button
-          onClick={() => setIsAddSkillOpen(true)}
+        <Link
+          href="/dashboard/skills/new"
           className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm rounded-lg transition-colors"
         >
           + Add New Skill
-        </button>
+        </Link>
       </div>
 
       {/* Skills Grid */}
       {skills.length === 0 ? (
         <div className="text-center py-20 border border-zinc-800/50 rounded-xl bg-[#18181A]">
           <p className="text-zinc-500 mb-4">No skills tracked yet.</p>
-          <button
-            onClick={() => setIsAddSkillOpen(true)}
+          <Link
+            href="/dashboard/skills/new"
             className="px-4 py-2 bg-amber-500 text-black font-bold rounded-lg"
           >
             Create your first skill
-          </button>
+          </Link>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
