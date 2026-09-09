@@ -35,7 +35,7 @@ export async function GET(
   return NextResponse.json(skill);
 }
 
-const ALLOWED_LEVELS = ["Beginner", "Intermediate", "Expert"];
+const ALLOWED_LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
 export async function PATCH(
   request: Request,

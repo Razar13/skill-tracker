@@ -5,7 +5,7 @@ import { useState } from "react";
 const LEVELS = [
   { key: "Beginner", color: "#3b82f6" },
   { key: "Intermediate", color: "#f59e0b" },
-  { key: "Expert", color: "#a855f7" },
+  { key: "Advanced", color: "#a855f7" },
 ] as const;
 
 interface LevelBadgePickerProps {
