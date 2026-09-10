@@ -68,6 +68,8 @@ export const SKILL_CATALOG: SkillCategory[] = [
       { name: "Yoga", description: "Flexibility, breathing, and mindfulness." },
       { name: "Weightlifting", description: "Strength training and form." },
       { name: "Basketball", description: "Ball handling, shooting, and game sense." },
+      { name: "Football", description: "Dribbling, passing, and tactical awareness." },
+      { name: "Volleyball", description: "Serving, spiking, and team strategy." },
       { name: "Tennis", description: "Strokes, footwork, and match play." },
       { name: "Boxing", description: "Footwork, combinations, and conditioning." },
       { name: "Cycling", description: "Endurance, technique, and route training." },
