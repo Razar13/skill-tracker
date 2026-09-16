@@ -5,6 +5,7 @@ import Link from "next/link";
 import AddSkillModal from "@/components/add-skill-modal";
 import Mascot from "@/components/mascot";
 import MiniHeatmap from "@/components/mini-heatmap";
+import { authClient } from "@/lib/auth-client";
 
 interface Skill {
   id: string;
@@ -72,6 +73,18 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
 
+  const { data: session } = authClient.useSession();
+
+  function getTimeGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 5) return "Good night";
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  }
+
+  const firstName = session?.user?.name?.split(" ")[0] || "there";
+
   const fetchSkills = useCallback(async () => {
     try {
       const res = await fetch("/api/skills");
@@ -128,7 +141,9 @@ export default function DashboardPage() {
       <div className="max-w-3xl mx-auto space-y-6">
         <header className="flex items-start justify-between">
           <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-white">Good evening, Alex</h1>
+            <h1 className="text-3xl font-bold tracking-tight text-white">
+              {getTimeGreeting()}, {firstName}
+            </h1>
             <p className="text-sm text-zinc-500">
               {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
             </p>

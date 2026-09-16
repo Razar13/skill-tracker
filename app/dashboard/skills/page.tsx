@@ -8,6 +8,7 @@ interface Skill {
   id: string;
   name: string;
   color: string;
+  level: string;
   sessionCount: number;
   totalMinutes: number;
 }
@@ -18,6 +19,12 @@ interface PracticeSession {
   durationMinutes: number;
   date: string;
 }
+
+const LEVEL_STYLES: Record<string, string> = {
+  Beginner: "text-blue-500",
+  Intermediate: "text-amber-500",
+  Advanced: "text-purple-400",
+};
 
 export default function MySkillsPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
@@ -51,7 +58,6 @@ export default function MySkillsPage() {
     init();
   }, [fetchSkills, fetchSessions]);
 
-  // Reused streak calculator from your stats logic
   const calculateStreak = (skillSessions: PracticeSession[]) => {
     if (!skillSessions.length) return 0;
     const uniqueDates = Array.from(
@@ -80,23 +86,15 @@ export default function MySkillsPage() {
     return current;
   };
 
-  const getSkillLevel = (totalMinutes: number) => {
-    const hours = totalMinutes / 60;
-    if (hours >= 50) return { label: "Advanced", color: "text-amber-600" };
-    if (hours >= 20) return { label: "Intermediate", color: "text-amber-500" };
-    return { label: "Beginner", color: "text-blue-500" };
-  };
-
   if (loading) return <div className="p-8 text-zinc-400">Loading skills...</div>;
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
-      {/* Header */}
       <div className="flex justify-between items-start mb-8">
         <div>
           <h1 className="text-3xl font-bold text-white mb-2">My Skills</h1>
           <p className="text-sm text-zinc-500">
-            Grow your musicianship. Keep your practice focused and consistent.
+            Every skill here is a habit you're building — pick one up where you left off.
           </p>
         </div>
         <Link
@@ -107,7 +105,6 @@ export default function MySkillsPage() {
         </Link>
       </div>
 
-      {/* Skills Grid */}
       {skills.length === 0 ? (
         <div className="text-center py-20 border border-zinc-800/50 rounded-xl bg-[#18181A]">
           <p className="text-zinc-500 mb-4">No skills tracked yet.</p>
@@ -121,33 +118,31 @@ export default function MySkillsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {skills.map((skill) => {
-            const skillSessions = sessions.filter(s => s.skillId === skill.id);
+            const skillSessions = sessions.filter((s) => s.skillId === skill.id);
             const streak = calculateStreak(skillSessions);
             const hours = Math.floor(skill.totalMinutes / 60);
-            const level = getSkillLevel(skill.totalMinutes);
+            const levelColor = LEVEL_STYLES[skill.level] || LEVEL_STYLES.Beginner;
 
             return (
-              <div 
-                key={skill.id} 
+              <div
+                key={skill.id}
                 className="bg-[#18181A] border border-zinc-800/50 rounded-xl overflow-hidden flex flex-col transition-all hover:border-zinc-700"
               >
-                {/* Mock Image Banner - Uses a subtle gradient based on skill color */}
-                <div 
+                <div
                   className="h-36 w-full opacity-80"
                   style={{
                     background: `linear-gradient(135deg, ${skill.color}40 0%, #121212 100%)`,
-                    borderBottom: `2px solid ${skill.color}`
+                    borderBottom: `2px solid ${skill.color}`,
                   }}
                 />
 
-                {/* Card Body */}
                 <div className="p-5 flex flex-col flex-1">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${level.color}`}>
-                    {level.label}
+                  <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${levelColor}`}>
+                    {skill.level}
                   </span>
-                  
+
                   <h2 className="text-xl font-bold text-white mb-6">{skill.name}</h2>
-                  
+
                   <div className="flex justify-between items-center text-sm text-zinc-400 mb-6">
                     <div className="flex items-center gap-2">
                       <span>⏳</span>

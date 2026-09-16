@@ -86,6 +86,9 @@ export default function SkillDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
+  const [visibleSessionCount, setVisibleSessionCount] = useState(3);
+
   const [sessionModal, setSessionModal] = useState<{ open: boolean; editing: PracticeSessionT | null }>({
     open: false,
     editing: null,
@@ -296,40 +299,75 @@ export default function SkillDetailPage() {
             </div>
           ) : (
             <div className="space-y-4">
-              {skill.projects.map((project) => (
-                <div key={project.id} className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-                  <div className="flex justify-between items-start gap-3 mb-2">
-                    <h3 className="font-bold text-white">{project.name}</h3>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs font-medium px-2 py-1 bg-amber-900/30 text-amber-500 rounded-full whitespace-nowrap">
-                        {project._count.sessions} session{project._count.sessions === 1 ? "" : "s"}
-                      </span>
+              {skill.projects.map((project) => {
+                const isExpanded = expandedProjectId === project.id;
+                const projectSessions = skill.sessions.filter((s) => s.project?.id === project.id);
+
+                return (
+                  <div key={project.id} className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
+                    <div className="flex justify-between items-start gap-3 mb-2">
                       <button
-                        onClick={() => setProjectModal({ open: true, editing: project })}
-                        className="text-xs text-zinc-500 hover:text-zinc-300"
+                        type="button"
+                        onClick={() => setExpandedProjectId(isExpanded ? null : project.id)}
+                        className="flex items-center gap-1.5 text-left"
                       >
-                        Edit
+                        <span className="text-zinc-500 text-xs">{isExpanded ? "▾" : "▸"}</span>
+                        <h3 className="font-bold text-white">{project.name}</h3>
                       </button>
-                      <button
-                        onClick={() => setDeleteProjectId(project.id)}
-                        className="text-xs text-zinc-500 hover:text-red-400"
-                      >
-                        Delete
-                      </button>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="text-xs font-medium px-2 py-1 bg-amber-900/30 text-amber-500 rounded-full whitespace-nowrap">
+                          {project._count.sessions} session{project._count.sessions === 1 ? "" : "s"}
+                        </span>
+                        <button
+                          onClick={() => setProjectModal({ open: true, editing: project })}
+                          className="text-xs text-zinc-500 hover:text-zinc-300"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setDeleteProjectId(project.id)}
+                          className="text-xs text-zinc-500 hover:text-red-400"
+                        >
+                          Delete
+                        </button>
+                      </div>
                     </div>
+                    {project.description && (
+                      <p className="text-sm text-zinc-400 mb-3">{project.description}</p>
+                    )}
+                    <p className="text-xs text-zinc-600">
+                      Started:{" "}
+                      {new Date(project.createdAt).toLocaleDateString("en-US", {
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+
+                    {isExpanded && (
+                      <div className="mt-4 pt-4 border-t border-zinc-800/50 space-y-3">
+                        {projectSessions.length === 0 ? (
+                          <p className="text-xs text-zinc-600">No sessions logged for this project yet.</p>
+                        ) : (
+                          projectSessions.map((s) => (
+                            <div key={s.id} className="flex justify-between items-start">
+                              <div>
+                                <div className="flex items-center gap-2 mb-0.5">
+                                  <span className="text-xs text-zinc-500">
+                                    {new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                                  </span>
+                                  <span className="font-medium text-zinc-200 text-sm">{s.title}</span>
+                                </div>
+                                {s.description && <p className="text-xs text-zinc-500">{s.description}</p>}
+                              </div>
+                              <span className="text-xs font-medium text-amber-500 shrink-0">{s.durationMinutes}m</span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
-                  {project.description && (
-                    <p className="text-sm text-zinc-400 mb-3">{project.description}</p>
-                  )}
-                  <p className="text-xs text-zinc-600">
-                    Started:{" "}
-                    {new Date(project.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -342,46 +380,57 @@ export default function SkillDetailPage() {
               No sessions logged yet.
             </div>
           ) : (
-            <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 space-y-4">
-              {skill.sessions.slice(0, 6).map((s) => (
-                <div
-                  key={s.id}
-                  className="flex justify-between items-start border-b border-zinc-800/50 pb-4 last:border-0 last:pb-0"
+            <>
+              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 space-y-4">
+                {skill.sessions.slice(0, visibleSessionCount).map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex justify-between items-start border-b border-zinc-800/50 pb-4 last:border-0 last:pb-0"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-xs text-zinc-500">
+                          {new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        </span>
+                        <span className="font-bold text-zinc-200 text-sm">{s.title}</span>
+                      </div>
+                      {s.description && <p className="text-xs text-zinc-400">{s.description}</p>}
+                    </div>
+                    <div className="flex flex-col items-end gap-1.5">
+                      <span className="text-xs font-medium text-amber-500">{s.durationMinutes}m</span>
+                      {s.project && (
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                          {s.project.name}
+                        </span>
+                      )}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setSessionModal({ open: true, editing: s })}
+                          className="text-[11px] text-zinc-500 hover:text-zinc-300"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setDeleteSessionId(s.id)}
+                          className="text-[11px] text-zinc-500 hover:text-red-400"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {visibleSessionCount < skill.sessions.length && (
+                <button
+                  onClick={() => setVisibleSessionCount((c) => Math.min(c + 10, skill.sessions.length))}
+                  className="mt-3 w-full py-2 text-sm text-zinc-400 hover:text-zinc-200 border border-zinc-800/50 hover:border-zinc-700 rounded-lg transition-colors"
                 >
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs text-zinc-500">
-                        {new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </span>
-                      <span className="font-bold text-zinc-200 text-sm">{s.title}</span>
-                    </div>
-                    {s.description && <p className="text-xs text-zinc-400">{s.description}</p>}
-                  </div>
-                  <div className="flex flex-col items-end gap-1.5">
-                    <span className="text-xs font-medium text-amber-500">{s.durationMinutes}m</span>
-                    {s.project && (
-                      <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
-                        {s.project.name}
-                      </span>
-                    )}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => setSessionModal({ open: true, editing: s })}
-                        className="text-[11px] text-zinc-500 hover:text-zinc-300"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => setDeleteSessionId(s.id)}
-                        className="text-[11px] text-zinc-500 hover:text-red-400"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                  Show more ({skill.sessions.length - visibleSessionCount} remaining)
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

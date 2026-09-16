@@ -10,6 +10,11 @@ interface Skill {
   color: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+}
+
 function LogPracticeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -19,6 +24,9 @@ function LogPracticeContent() {
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState<"pick" | "details">("pick");
   const [skillId, setSkillId] = useState<string | null>(null);
+
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [projectId, setProjectId] = useState("");
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -47,6 +55,23 @@ function LogPracticeContent() {
     }
   }, [preselectedId, skills]);
 
+  // Load the projects that belong to whichever skill is selected
+  useEffect(() => {
+    if (!skillId) {
+      setProjects([]);
+      return;
+    }
+    async function loadProjects() {
+      try {
+        const res = await fetch(`/api/skills/${skillId}/projects`);
+        if (res.ok) setProjects(await res.json());
+      } catch (err) {
+        console.error("Failed loading projects:", err);
+      }
+    }
+    loadProjects();
+  }, [skillId]);
+
   const selectedSkill = useMemo(
     () => skills.find((s) => s.id === skillId) || null,
     [skills, skillId]
@@ -54,6 +79,7 @@ function LogPracticeContent() {
 
   function chooseSkill(id: string) {
     setSkillId(id);
+    setProjectId("");
     setStep("details");
   }
 
@@ -81,6 +107,7 @@ function LogPracticeContent() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         skillId,
+        projectId: projectId || null,
         title: title.trim(),
         description: description.trim(),
         durationMinutes: totalMinutes,
@@ -176,6 +203,26 @@ function LogPracticeContent() {
                   className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
                 />
               </div>
+
+              {projects.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium mb-1.5 text-zinc-300">
+                    Project (optional)
+                  </label>
+                  <select
+                    value={projectId}
+                    onChange={(e) => setProjectId(e.target.value)}
+                    className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  >
+                    <option value="">No project</option>
+                    {projects.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
