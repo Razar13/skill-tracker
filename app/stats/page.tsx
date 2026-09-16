@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import SkillHeatmap from "@/components/skill-heatmap";
+import DashboardLayout from "@/components/dashboard-layout";
 
 interface Skill {
   id: string;
@@ -152,121 +153,133 @@ export default function StatsPage() {
   }, [skills, sessions]);
 
   if (loading) {
-    return <div className="p-8 text-zinc-400 bg-[#121212] min-h-screen">Loading statistics...</div>;
+    return (
+      <DashboardLayout>
+        <div className="p-8 text-zinc-400">Loading statistics...</div>
+      </DashboardLayout>
+    );
   }
 
   return (
-    <main className="min-h-screen bg-[#121212] text-zinc-100 p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Statistics</h1>
-            <p className="text-sm text-zinc-500 mt-1">
-              Your practice, at a glance.
-            </p>
-          </div>
-          <Link
-            href="/dashboard"
-            className="px-4 py-2 text-sm bg-[#18181A] hover:bg-zinc-800 border border-zinc-800/50 text-zinc-300 rounded-lg font-medium transition-colors"
-          >
-            ← Back to Dashboard
-          </Link>
-        </div>
-
-        {/* Summary Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-            <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Total Time</p>
-            <p className="text-2xl font-bold text-white mt-1">{overallStats.totalHours}h</p>
-          </div>
-          <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-            <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">This Week</p>
-            <p className="text-2xl font-bold text-white mt-1">{overallStats.weekHours}h</p>
-          </div>
-          <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-            <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">This Month</p>
-            <p className="text-2xl font-bold text-white mt-1">{overallStats.monthHours}h</p>
-          </div>
-          <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-            <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Sessions</p>
-            <p className="text-2xl font-bold text-white mt-1">{overallStats.totalSessions}</p>
-          </div>
-          <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-            <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Best Streak</p>
-            <p className="text-2xl font-bold text-amber-500 mt-1">
-              🔥 {overallStats.bestCurrentStreak}
-            </p>
-          </div>
-        </div>
-
-        {/* Yearly Heatmap (reuses the fixed SkillHeatmap component) */}
-        <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6">
-          <SkillHeatmap sessions={sessions} />
-        </div>
-
-        {/* Per-skill breakdown */}
-        <div>
-          <h2 className="text-xl font-bold text-white mb-4">Skill Breakdown</h2>
-          {skillStats.length === 0 ? (
-            <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 text-center text-zinc-500 text-sm">
-              No skills to analyze yet.
+    <DashboardLayout>
+      <main className="text-zinc-100 p-8">
+        <div className="max-w-6xl mx-auto space-y-6">
+        {
+          <main className="min-h-screen bg-[#121212] text-zinc-100 p-8">
+          <div className="max-w-6xl mx-auto space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-white">Statistics</h1>
+                <p className="text-sm text-zinc-500 mt-1">
+                  Your practice, at a glance.
+                </p>
+              </div>
+              <Link
+                href="/dashboard"
+                className="px-4 py-2 text-sm bg-[#18181A] hover:bg-zinc-800 border border-zinc-800/50 text-zinc-300 rounded-lg font-medium transition-colors"
+              >
+                ← Back to Dashboard
+              </Link>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {skillStats.map(({ skill, totalMins, sessionCount, streaks, avgMins, lastPracticed }) => (
-                <Link
-                  key={skill.id}
-                  href={`/dashboard/skills/${skill.id}`}
-                  className="bg-[#18181A] border border-zinc-800/50 hover:border-zinc-700 rounded-xl p-5 space-y-4 transition-colors block"
-                  style={{ borderLeft: `4px solid ${skill.color}` }}
-                >
-                  <div className="flex justify-between items-start gap-2">
-                    <div>
-                      <h3 className="text-lg font-bold text-white">{skill.name}</h3>
-                      <span
-                        className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${
-                          LEVEL_STYLES[skill.level] || LEVEL_STYLES.Beginner
-                        }`}
-                      >
-                        {skill.level}
-                      </span>
-                    </div>
-                    <span className="text-xs font-semibold px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded-full whitespace-nowrap">
-                      {(totalMins / 60).toFixed(1)}h total
-                    </span>
-                  </div>
 
-                  <div className="grid grid-cols-4 gap-2 pt-3 border-t border-zinc-800/50 text-center">
-                    <div>
-                      <p className="text-[10px] text-zinc-500 uppercase">Sessions</p>
-                      <p className="text-base font-semibold text-zinc-200">{sessionCount}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-zinc-500 uppercase">Avg</p>
-                      <p className="text-base font-semibold text-zinc-200">{avgMins}m</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-zinc-500 uppercase">Streak</p>
-                      <p className="text-base font-semibold text-emerald-500">🔥 {streaks.current}</p>
-                    </div>
-                    <div>
-                      <p className="text-[10px] text-zinc-500 uppercase">Best</p>
-                      <p className="text-base font-semibold text-amber-500">🏆 {streaks.longest}</p>
-                    </div>
-                  </div>
-
-                  {lastPracticed && (
-                    <p className="text-xs text-zinc-600">
-                      Last practiced{" "}
-                      {lastPracticed.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                    </p>
-                  )}
-                </Link>
-              ))}
+            {/* Summary Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
+                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Total Time</p>
+                <p className="text-2xl font-bold text-white mt-1">{overallStats.totalHours}h</p>
+              </div>
+              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
+                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">This Week</p>
+                <p className="text-2xl font-bold text-white mt-1">{overallStats.weekHours}h</p>
+              </div>
+              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
+                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">This Month</p>
+                <p className="text-2xl font-bold text-white mt-1">{overallStats.monthHours}h</p>
+              </div>
+              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
+                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Sessions</p>
+                <p className="text-2xl font-bold text-white mt-1">{overallStats.totalSessions}</p>
+              </div>
+              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
+                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Best Streak</p>
+                <p className="text-2xl font-bold text-amber-500 mt-1">
+                  🔥 {overallStats.bestCurrentStreak}
+                </p>
+              </div>
             </div>
-          )}
+
+            {/* Yearly Heatmap (reuses the fixed SkillHeatmap component) */}
+            <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6">
+              <SkillHeatmap sessions={sessions} />
+            </div>
+
+            {/* Per-skill breakdown */}
+            <div>
+              <h2 className="text-xl font-bold text-white mb-4">Skill Breakdown</h2>
+              {skillStats.length === 0 ? (
+                <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 text-center text-zinc-500 text-sm">
+                  No skills to analyze yet.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {skillStats.map(({ skill, totalMins, sessionCount, streaks, avgMins, lastPracticed }) => (
+                    <Link
+                      key={skill.id}
+                      href={`/dashboard/skills/${skill.id}`}
+                      className="bg-[#18181A] border border-zinc-800/50 hover:border-zinc-700 rounded-xl p-5 space-y-4 transition-colors block"
+                      style={{ borderLeft: `4px solid ${skill.color}` }}
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <h3 className="text-lg font-bold text-white">{skill.name}</h3>
+                          <span
+                            className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${
+                              LEVEL_STYLES[skill.level] || LEVEL_STYLES.Beginner
+                            }`}
+                          >
+                            {skill.level}
+                          </span>
+                        </div>
+                        <span className="text-xs font-semibold px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded-full whitespace-nowrap">
+                          {(totalMins / 60).toFixed(1)}h total
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-2 pt-3 border-t border-zinc-800/50 text-center">
+                        <div>
+                          <p className="text-[10px] text-zinc-500 uppercase">Sessions</p>
+                          <p className="text-base font-semibold text-zinc-200">{sessionCount}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-zinc-500 uppercase">Avg</p>
+                          <p className="text-base font-semibold text-zinc-200">{avgMins}m</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-zinc-500 uppercase">Streak</p>
+                          <p className="text-base font-semibold text-emerald-500">🔥 {streaks.current}</p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-zinc-500 uppercase">Best</p>
+                          <p className="text-base font-semibold text-amber-500">🏆 {streaks.longest}</p>
+                        </div>
+                      </div>
+
+                      {lastPracticed && (
+                        <p className="text-xs text-zinc-600">
+                          Last practiced{" "}
+                          {lastPracticed.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        </p>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+        } 
         </div>
-      </div>
-    </main>
+      </main>
+    </DashboardLayout>
   );
 }
