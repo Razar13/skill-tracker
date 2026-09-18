@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import SkillHeatmap from "@/components/skill-heatmap";
 import DashboardLayout from "@/components/dashboard-layout";
+import { DashboardIcon } from "@/components/icon";
 
 interface Skill {
   id: string;
@@ -260,7 +261,9 @@ export default function StatsPage() {
                         </div>
                         <div>
                           <p className="text-[10px] text-zinc-500 uppercase">Best</p>
-                          <p className="text-base font-semibold text-amber-500">🏆 {streaks.longest}</p>
+                          <p className="text-base font-semibold text-amber-500 inline-flex items-center gap-1">
+                            <DashboardIcon name="trophy" className="w-3.5 h-3.5" /> {streaks.longest}
+                          </p>
                         </div>
                       </div>
 

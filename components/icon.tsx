@@ -17,3 +17,19 @@ export function IconFlame({ className = "w-4 h-4" }: { className?: string }) {
     </svg>
   );
 }
+
+interface DashboardIconProps {
+  name: string; // matches filename without extension, e.g. "flame"
+  className?: string;
+  alt?: string;
+}
+
+export function DashboardIcon({ name, className = "w-4 h-4", alt = "" }: DashboardIconProps) {
+  return (
+    <img
+      src={`/dashboard/icon-${name}.svg`}
+      alt={alt}
+      className={`${className} inline-block`}
+    />
+  );
+}

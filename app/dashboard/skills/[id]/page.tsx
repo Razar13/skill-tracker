@@ -9,6 +9,7 @@ import SessionModal from "@/components/session-modal";
 import ProjectModal from "@/components/project-modal";
 import ConfirmDialog from "@/components/confirm-dialog";
 import LevelBadgePicker from "@/components/level-badge-picker";
+import { DashboardIcon } from "@/components/icon";
 
 interface Project {
   id: string;
@@ -240,7 +241,7 @@ export default function SkillDetailPage() {
             className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl border"
             style={{ backgroundColor: `${skill.color}22`, borderColor: `${skill.color}55` }}
           >
-            🎵
+            <DashboardIcon name="music" className="w-7 h-7" />
           </div>
           <div>
             <div className="flex items-center gap-3">
@@ -254,6 +255,7 @@ export default function SkillDetailPage() {
               </span>
               {"  ·  "}
               Streak: <span className="text-amber-500 font-medium">🔥 {stats.currentStreak} days</span>
+
             </p>
           </div>
         </div>
@@ -268,7 +270,9 @@ export default function SkillDetailPage() {
             onClick={() => setSessionModal({ open: true, editing: null })}
             className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm rounded-lg transition-colors"
           >
-            📅 Log Practice Session
+            <span className="inline-flex items-center gap-1.5">
+              <DashboardIcon name="calendar" className="w-4 h-4" /> Log Practice Session
+            </span>
           </button>
         </div>
       </div>

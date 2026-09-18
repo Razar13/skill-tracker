@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AddSkillModal from "@/components/add-skill-modal";
 import Link from "next/link";
+import { DashboardIcon } from "@/components/icon";
 
 interface Skill {
   id: string;
@@ -143,15 +144,13 @@ export default function MySkillsPage() {
 
                   <h2 className="text-xl font-bold text-white mb-6">{skill.name}</h2>
 
-                  <div className="flex justify-between items-center text-sm text-zinc-400 mb-6">
-                    <div className="flex items-center gap-2">
-                      <span>⏳</span>
-                      <span>{hours} hours</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-amber-500">🔥</span>
-                      <span className="text-amber-500">{streak} days</span>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <DashboardIcon name="hourglass" className="w-4 h-4" />
+                    <span>{hours} hours</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-amber-500">🔥</span>
+                    <span className="text-amber-500">{streak} days</span>
                   </div>
 
                   <div className="mt-auto pt-4 border-t border-zinc-800/50">

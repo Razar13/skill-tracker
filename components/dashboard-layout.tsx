@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { DashboardIcon } from "@/components/icon";
 
 const navItems = [
-  { name: "Dashboard", href: "/dashboard", icon: "⊞" },
-  { name: "My Skills", href: "/dashboard/skills", icon: "📚" },
-  { name: "Practice Log", href: "/dashboard/log", icon: "≡" },
-  { name: "Stats", href: "/stats", icon: "📊" },
-  { name: "Settings", href: "/settings", icon: "⚙️" },
+  { name: "Dashboard", href: "/dashboard", icon: "dashboard" },
+  { name: "My Skills", href: "/dashboard/skills", icon: "skills" },
+  { name: "Practice Log", href: "/dashboard/log", icon: "log" },
+  { name: "Stats", href: "/stats", icon: "stats" },
+  { name: "Settings", href: "/settings", icon: "settings" },
 ];
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -32,7 +33,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <div className="flex h-screen bg-[#121212] text-zinc-100 font-sans overflow-hidden">
       <aside className="w-64 border-r border-zinc-800/50 flex flex-col bg-[#121212] flex-shrink-0">
         <div className="h-16 flex items-center px-6 border-b border-zinc-800/50">
-          <span className="text-amber-500 mr-2 text-xl">🎵</span>
+          <DashboardIcon name="music" className="text-amber-500 mr-2 text-xl" />
           <span className="font-bold text-lg tracking-wide text-zinc-100">Skill Tracker</span>
         </div>
 
@@ -49,7 +50,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                     : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
                 }`}
               >
-                <span className="opacity-80">{item.icon}</span> {item.name}
+                <DashboardIcon name={item.icon} className="w-4 h-4 opacity-80" /> {item.name}
               </Link>
             );
           })}
@@ -60,7 +61,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         <header className="h-16 flex items-center justify-between px-8 border-b border-zinc-800/50 bg-[#121212] flex-shrink-0">
           <div className="flex-1 max-w-md">
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-500 text-sm">🔍</span>
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <DashboardIcon name="search" className="w-4 h-4 text-zinc-500" />
+              </span>
               <input
                 type="text"
                 placeholder="Search skills or notes..."
@@ -69,7 +72,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button className="text-zinc-400 hover:text-zinc-100 transition-colors">🔔</button>
+            <button className="text-zinc-400 hover:text-zinc-100 transition-colors">
+              <DashboardIcon name="bell" className="w-5 h-5" />
+            </button>
 
             <div className="relative pl-6 border-l border-zinc-800/50">
               <button
