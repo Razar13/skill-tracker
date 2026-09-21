@@ -16,6 +16,12 @@ interface ProjectModalProps {
   onSaved: () => void;
 }
 
+const inputStyle: React.CSSProperties = {
+  background: "var(--card-raised)",
+  border: "1px solid var(--rule)",
+  color: "var(--ink)",
+};
+
 export default function ProjectModal({
   isOpen,
   skillId,
@@ -72,24 +78,27 @@ export default function ProjectModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-      <div className="bg-[#18181A] border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl">
-        <h2 className="text-xl font-bold text-white mb-1">
+      <div className="card max-w-md w-full">
+        <h2 className="display text-xl mb-1">
           {isEdit ? "Edit Project" : "New Project"}
         </h2>
-        <p className="text-sm text-zinc-500 mb-6">
+        <p className="text-sm mb-6" style={{ color: "var(--ink-faint)" }}>
           {isEdit ? "Update this project's details." : "Group related practice sessions together."}
         </p>
 
         {error && (
-          <div className="p-3 mb-4 text-sm text-red-400 bg-red-950/40 border border-red-900/50 rounded-lg">
+          <div
+            className="p-3 mb-4 text-sm rounded"
+            style={{ background: "rgba(198,102,102,0.1)", border: "1px solid rgba(198,102,102,0.4)", color: "#e08d8d" }}
+          >
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-zinc-300">
-              Project Name
+            <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+              PROJECT NAME
             </label>
             <input
               type="text"
@@ -98,36 +107,30 @@ export default function ProjectModal({
               placeholder="e.g., Bach's Bourrée in E Minor"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1.5 text-zinc-300">
-              Description (Optional)
+            <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+              DESCRIPTION (OPTIONAL)
             </label>
             <textarea
               rows={3}
               placeholder="What are you working on?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+              style={inputStyle}
             />
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200"
-            >
-              Cancel
+            <button type="button" onClick={onClose} className="btn-ghost">
+              CANCEL
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2.5 text-sm bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-lg disabled:opacity-50"
-            >
+            <button type="submit" disabled={isSubmitting} className="btn-primary">
               {isSubmitting ? "Saving..." : isEdit ? "Save Changes" : "Create Project"}
             </button>
           </div>

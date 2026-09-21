@@ -21,10 +21,12 @@ interface PracticeSession {
   date: string;
 }
 
-const LEVEL_STYLES: Record<string, string> = {
-  Beginner: "text-blue-500",
-  Intermediate: "text-amber-500",
-  Advanced: "text-purple-400",
+// Each level gets a fixed accent so "Beginner"/"Intermediate"/"Advanced"
+// is recognizable as a color, not just a word — same idea as skill chips.
+const LEVEL_COLORS: Record<string, string> = {
+  Beginner: "#3b82f6",
+  Intermediate: "#f0b13e",
+  Advanced: "#a855f7",
 };
 
 export default function MySkillsPage() {
@@ -87,82 +89,84 @@ export default function MySkillsPage() {
     return current;
   };
 
-  if (loading) return <div className="p-8 text-zinc-400">Loading skills...</div>;
+  if (loading) {
+    return (
+      <div className="p-8 mono text-sm" style={{ color: "var(--ink-faint)" }}>
+        Loading skills...
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">My Skills</h1>
-          <p className="text-sm text-zinc-500">
-            Every skill here is a habit you're building — pick one up where you left off.
+          <h1 className="display text-[28px] mb-1.5">My Skills</h1>
+          <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
+            Every skill here is a habit you&apos;re building — pick one up where you left off.
           </p>
         </div>
-        <Link
-          href="/dashboard/skills/new"
-          className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm rounded-lg transition-colors"
-        >
+        <Link href="/dashboard/skills/new" className="btn-primary inline-block">
           + Add New Skill
         </Link>
       </div>
 
       {skills.length === 0 ? (
-        <div className="text-center py-20 border border-zinc-800/50 rounded-xl bg-[#18181A]">
-          <p className="text-zinc-500 mb-4">No skills tracked yet.</p>
-          <Link
-            href="/dashboard/skills/new"
-            className="px-4 py-2 bg-amber-500 text-black font-bold rounded-lg"
-          >
+        <div className="card text-center py-16">
+          <p className="text-sm mb-4" style={{ color: "var(--ink-faint)" }}>
+            No skills tracked yet.
+          </p>
+          <Link href="/dashboard/skills/new" className="btn-primary inline-block">
             Create your first skill
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {skills.map((skill) => {
             const skillSessions = sessions.filter((s) => s.skillId === skill.id);
             const streak = calculateStreak(skillSessions);
             const hours = Math.floor(skill.totalMinutes / 60);
-            const levelColor = LEVEL_STYLES[skill.level] || LEVEL_STYLES.Beginner;
+            const levelColor = LEVEL_COLORS[skill.level] || LEVEL_COLORS.Beginner;
 
             return (
-              <div
+              <Link
                 key={skill.id}
-                className="bg-[#18181A] border border-zinc-800/50 rounded-xl overflow-hidden flex flex-col transition-all hover:border-zinc-700"
+                href={`/dashboard/skills/${skill.id}`}
+                className="card flex flex-col transition-colors hover:brightness-110"
+                style={{ "--tab-color": skill.color } as React.CSSProperties}
               >
-                <div
-                  className="h-36 w-full opacity-80"
-                  style={{
-                    background: `linear-gradient(135deg, ${skill.color}40 0%, #121212 100%)`,
-                    borderBottom: `2px solid ${skill.color}`,
-                  }}
-                />
-
-                <div className="p-5 flex flex-col flex-1">
-                  <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${levelColor}`}>
-                    {skill.level}
+                <div className="flex items-center justify-between mb-4">
+                  <div
+                    className="chip w-9 h-9 text-[15px]"
+                    style={{ backgroundColor: skill.color }}
+                  >
+                    {skill.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span
+                    className="mono text-[10px] tracking-widest px-2 py-1 rounded-full border"
+                    style={{ color: levelColor, borderColor: `${levelColor}55`, background: `${levelColor}18` }}
+                  >
+                    {skill.level.toUpperCase()}
                   </span>
-
-                  <h2 className="text-xl font-bold text-white mb-6">{skill.name}</h2>
-
-                  <div className="flex items-center gap-2">
-                    <DashboardIcon name="hourglass" className="w-4 h-4" />
-                    <span>{hours} hours</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-500">🔥</span>
-                    <span className="text-amber-500">{streak} days</span>
-                  </div>
-
-                  <div className="mt-auto pt-4 border-t border-zinc-800/50">
-                    <Link
-                      href={`/dashboard/skills/${skill.id}`}
-                      className="text-amber-500 text-sm font-medium hover:text-amber-400 transition-colors flex items-center gap-1"
-                    >
-                      View Details <span>→</span>
-                    </Link>
-                  </div>
                 </div>
-              </div>
+
+                <h2 className="display text-lg mb-5">{skill.name}</h2>
+
+                <div className="flex items-center gap-2 mb-1.5 text-sm" style={{ color: "var(--ink-dim)" }}>
+                  <DashboardIcon name="hourglass" className="w-4 h-4" />
+                  <span className="mono">{hours}h logged</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm" style={{ color: "var(--amber)" }}>
+                  <span>🔥</span>
+                  <span className="mono">{streak} day streak</span>
+                </div>
+
+                <div className="mt-auto pt-4" style={{ borderTop: "1px dashed var(--rule)" }}>
+                  <span className="btn-ghost inline-block" style={{ color: "var(--amber-dim)" }}>
+                    View details →
+                  </span>
+                </div>
+              </Link>
             );
           })}
         </div>

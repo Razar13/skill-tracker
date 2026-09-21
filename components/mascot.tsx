@@ -21,7 +21,8 @@ export default function Mascot({ streak, daysSinceLastPractice }: MascotProps) {
 
   return (
     <div
-      className="w-14 h-14 rounded-full bg-[#18181A] border border-zinc-800/50 flex items-center justify-center text-xl"
+      className="w-14 h-14 rounded-full flex items-center justify-center text-xl flex-shrink-0"
+      style={{ background: "var(--card-raised)", border: "1px solid var(--tab-border)" }}
       title={`Mascot mood: ${MOOD_LABELS[score]} (placeholder — real art coming later)`}
     >
       <span aria-hidden="true">{MOOD_NUMBER_EMOJIS[score]}</span>

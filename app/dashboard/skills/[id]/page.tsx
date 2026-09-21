@@ -208,14 +208,20 @@ export default function SkillDetailPage() {
   }, [skill]);
 
   if (loading) {
-    return <div className="p-8 text-zinc-400">Loading skill...</div>;
+    return (
+      <div className="p-8 mono text-sm" style={{ color: "var(--ink-faint)" }}>
+        Loading skill...
+      </div>
+    );
   }
 
   if (error || !skill || !stats) {
     return (
       <div className="p-8">
-        <p className="text-zinc-400 mb-4">{error || "Skill not found."}</p>
-        <Link href="/dashboard/skills" className="text-amber-500 hover:text-amber-400">
+        <p className="text-sm mb-4" style={{ color: "var(--ink-dim)" }}>
+          {error || "Skill not found."}
+        </p>
+        <Link href="/dashboard/skills" className="btn-ghost" style={{ color: "var(--amber-dim)" }}>
           ← Back to My Skills
         </Link>
       </div>
@@ -226,50 +232,53 @@ export default function SkillDetailPage() {
   const totalRemainderMins = stats.totalMins % 60;
 
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-6">
-      <div className="text-sm text-zinc-500">
-        <Link href="/dashboard/skills" className="hover:text-zinc-300">
+    <div className="p-8 max-w-6xl mx-auto space-y-5">
+      <div className="text-sm mono" style={{ color: "var(--ink-faint)" }}>
+        <Link href="/dashboard/skills" style={{ color: "var(--ink-dim)" }}>
           My Skills
         </Link>
-        <span className="mx-2">{">"}</span>
-        <span className="text-amber-500 font-medium">{skill.name}</span>
+        <span className="mx-2">/</span>
+        <span style={{ color: "var(--amber)" }}>{skill.name}</span>
       </div>
 
-      <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 flex items-center justify-between flex-wrap gap-4">
+      <div
+        className="card card-tab-sm flex items-center justify-between flex-wrap gap-4"
+        style={{ "--tab-color": skill.color } as React.CSSProperties}
+      >
         <div className="flex items-center gap-4">
           <div
-            className="w-16 h-16 rounded-xl flex items-center justify-center text-2xl border"
-            style={{ backgroundColor: `${skill.color}22`, borderColor: `${skill.color}55` }}
+            className="w-16 h-16 rounded-xl flex items-center justify-center display text-2xl border"
+            style={{ backgroundColor: `${skill.color}22`, borderColor: `${skill.color}55`, color: skill.color }}
           >
-            <DashboardIcon name="music" className="w-7 h-7" />
+            {skill.name.charAt(0).toUpperCase()}
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold text-white">{skill.name}</h1>
+              <h1 className="display text-[26px]">{skill.name}</h1>
               <LevelBadgePicker level={skill.level} onChange={handleLevelChange} />
             </div>
-            <p className="text-sm text-zinc-500 mt-1">
+            <p className="text-sm mt-1" style={{ color: "var(--ink-faint)" }}>
               Total:{" "}
-              <span className="text-zinc-300 font-medium">
+              <span className="mono" style={{ color: "var(--ink)" }}>
                 {totalHours}h {totalRemainderMins}m
               </span>
               {"  ·  "}
-              Streak: <span className="text-amber-500 font-medium">🔥 {stats.currentStreak} days</span>
-
+              Streak:{" "}
+              <span className="mono" style={{ color: "var(--amber)" }}>
+                🔥 {stats.currentStreak} days
+              </span>
             </p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setDeleteSkillOpen(true)}
-            className="px-3 py-2.5 border border-zinc-800 hover:border-red-800 hover:text-red-400 text-zinc-500 text-sm rounded-lg transition-colors"
+            className="btn-stamp"
+            style={{ color: "var(--ink-faint)", borderColor: "var(--rule)" }}
           >
-            Delete Skill
+            DELETE SKILL
           </button>
-          <button
-            onClick={() => setSessionModal({ open: true, editing: null })}
-            className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm rounded-lg transition-colors"
-          >
+          <button onClick={() => setSessionModal({ open: true, editing: null })} className="btn-primary">
             <span className="inline-flex items-center gap-1.5">
               <DashboardIcon name="calendar" className="w-4 h-4" /> Log Practice Session
             </span>
@@ -277,10 +286,10 @@ export default function SkillDetailPage() {
         </div>
       </div>
 
-      <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 space-y-8">
+      <div className="card space-y-8">
         <SkillHeatmap sessions={skill.sessions} />
         <div>
-          <h3 className="text-lg font-bold text-white tracking-wide mb-4">Last 7 Days</h3>
+          <h3 className="label-head text-[15px] tracking-wide mb-4">Last 7 Days</h3>
           <WeeklyTrendChart data={stats.trend} />
         </div>
       </div>
@@ -288,18 +297,17 @@ export default function SkillDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div>
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-white">Projects</h2>
-            <button
-              onClick={() => setProjectModal({ open: true, editing: null })}
-              className="px-3 py-1.5 border border-zinc-700 hover:bg-zinc-800 text-zinc-300 text-xs font-medium rounded transition-colors"
-            >
-              + Create Project
+            <h2 className="label-head text-[15px] tracking-wide">Projects</h2>
+            <button onClick={() => setProjectModal({ open: true, editing: null })} className="btn-stamp">
+              + CREATE PROJECT
             </button>
           </div>
 
           {skill.projects.length === 0 ? (
-            <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 text-center text-zinc-500 text-sm">
-              No projects yet. Start one to group related sessions together.
+            <div className="card text-center py-10">
+              <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
+                No projects yet. Start one to group related sessions together.
+              </p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -308,62 +316,81 @@ export default function SkillDetailPage() {
                 const projectSessions = skill.sessions.filter((s) => s.project?.id === project.id);
 
                 return (
-                  <div key={project.id} className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
+                  <div key={project.id} className="card">
                     <div className="flex justify-between items-start gap-3 mb-2">
                       <button
                         type="button"
                         onClick={() => setExpandedProjectId(isExpanded ? null : project.id)}
                         className="flex items-center gap-1.5 text-left"
                       >
-                        <span className="text-zinc-500 text-xs">{isExpanded ? "▾" : "▸"}</span>
-                        <h3 className="font-bold text-white">{project.name}</h3>
+                        <span className="text-xs" style={{ color: "var(--ink-faint)" }}>
+                          {isExpanded ? "▾" : "▸"}
+                        </span>
+                        <h3 className="label-head text-[15px]">{project.name}</h3>
                       </button>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-xs font-medium px-2 py-1 bg-amber-900/30 text-amber-500 rounded-full whitespace-nowrap">
-                          {project._count.sessions} session{project._count.sessions === 1 ? "" : "s"}
+                        <span
+                          className="mono text-[10px] tracking-wide px-2 py-1 rounded-full whitespace-nowrap"
+                          style={{ background: "rgba(240,177,62,0.1)", color: "var(--amber)" }}
+                        >
+                          {project._count.sessions} SESSION{project._count.sessions === 1 ? "" : "S"}
                         </span>
                         <button
                           onClick={() => setProjectModal({ open: true, editing: project })}
-                          className="text-xs text-zinc-500 hover:text-zinc-300"
+                          className="btn-ghost"
                         >
-                          Edit
+                          EDIT
                         </button>
                         <button
                           onClick={() => setDeleteProjectId(project.id)}
-                          className="text-xs text-zinc-500 hover:text-red-400"
+                          className="btn-ghost"
+                          style={{ color: "#c66" }}
                         >
-                          Delete
+                          DELETE
                         </button>
                       </div>
                     </div>
                     {project.description && (
-                      <p className="text-sm text-zinc-400 mb-3">{project.description}</p>
+                      <p className="text-sm mb-3" style={{ color: "var(--ink-dim)" }}>
+                        {project.description}
+                      </p>
                     )}
-                    <p className="text-xs text-zinc-600">
-                      Started:{" "}
-                      {new Date(project.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        year: "numeric",
-                      })}
+                    <p className="mono text-[11px]" style={{ color: "var(--ink-faint)" }}>
+                      STARTED{" "}
+                      {new Date(project.createdAt)
+                        .toLocaleDateString("en-US", { month: "short", year: "numeric" })
+                        .toUpperCase()}
                     </p>
 
                     {isExpanded && (
-                      <div className="mt-4 pt-4 border-t border-zinc-800/50 space-y-3">
+                      <div className="mt-4 pt-4 space-y-3" style={{ borderTop: "1px dashed var(--rule)" }}>
                         {projectSessions.length === 0 ? (
-                          <p className="text-xs text-zinc-600">No sessions logged for this project yet.</p>
+                          <p className="text-xs" style={{ color: "var(--ink-faint)" }}>
+                            No sessions logged for this project yet.
+                          </p>
                         ) : (
                           projectSessions.map((s) => (
                             <div key={s.id} className="flex justify-between items-start">
                               <div>
                                 <div className="flex items-center gap-2 mb-0.5">
-                                  <span className="text-xs text-zinc-500">
-                                    {new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                                  <span className="mono text-[10.5px]" style={{ color: "var(--ink-faint)" }}>
+                                    {new Date(s.date)
+                                      .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                                      .toUpperCase()}
                                   </span>
-                                  <span className="font-medium text-zinc-200 text-sm">{s.title}</span>
+                                  <span className="text-sm" style={{ color: "var(--ink)" }}>
+                                    {s.title}
+                                  </span>
                                 </div>
-                                {s.description && <p className="text-xs text-zinc-500">{s.description}</p>}
+                                {s.description && (
+                                  <p className="text-xs" style={{ color: "var(--ink-faint)" }}>
+                                    {s.description}
+                                  </p>
+                                )}
                               </div>
-                              <span className="text-xs font-medium text-amber-500 shrink-0">{s.durationMinutes}m</span>
+                              <span className="mono text-xs shrink-0" style={{ color: "var(--amber-dim)" }}>
+                                {s.durationMinutes}m
+                              </span>
                             </div>
                           ))
                         )}
@@ -377,48 +404,56 @@ export default function SkillDetailPage() {
         </div>
 
         <div>
-          <h2 className="text-lg font-bold text-white mb-4">Recent Sessions</h2>
+          <h2 className="label-head text-[15px] tracking-wide mb-4">Recent Sessions</h2>
 
           {skill.sessions.length === 0 ? (
-            <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 text-center text-zinc-500 text-sm">
-              No sessions logged yet.
+            <div className="card text-center py-10">
+              <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
+                No sessions logged yet.
+              </p>
             </div>
           ) : (
             <>
-              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 space-y-4">
+              <div className="card">
                 {skill.sessions.slice(0, visibleSessionCount).map((s) => (
-                  <div
-                    key={s.id}
-                    className="flex justify-between items-start border-b border-zinc-800/50 pb-4 last:border-0 last:pb-0"
-                  >
+                  <div key={s.id} className="row-rule flex justify-between items-start py-3.5">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-xs text-zinc-500">
-                          {new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        <span className="mono text-[10.5px]" style={{ color: "var(--ink-faint)" }}>
+                          {new Date(s.date)
+                            .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            .toUpperCase()}
                         </span>
-                        <span className="font-bold text-zinc-200 text-sm">{s.title}</span>
+                        <span className="label-head text-[14px]">{s.title}</span>
                       </div>
-                      {s.description && <p className="text-xs text-zinc-400">{s.description}</p>}
+                      {s.description && (
+                        <p className="text-xs" style={{ color: "var(--ink-dim)" }}>
+                          {s.description}
+                        </p>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-1.5">
-                      <span className="text-xs font-medium text-amber-500">{s.durationMinutes}m</span>
+                      <span className="mono text-xs" style={{ color: "var(--amber-dim)" }}>
+                        {s.durationMinutes}m
+                      </span>
                       {s.project && (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                        <span
+                          className="mono text-[10px] px-2 py-0.5 rounded"
+                          style={{ background: "var(--card-raised)", color: "var(--ink-faint)" }}
+                        >
                           {s.project.name}
                         </span>
                       )}
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => setSessionModal({ open: true, editing: s })}
-                          className="text-[11px] text-zinc-500 hover:text-zinc-300"
-                        >
-                          Edit
+                        <button onClick={() => setSessionModal({ open: true, editing: s })} className="btn-ghost">
+                          EDIT
                         </button>
                         <button
                           onClick={() => setDeleteSessionId(s.id)}
-                          className="text-[11px] text-zinc-500 hover:text-red-400"
+                          className="btn-ghost"
+                          style={{ color: "#c66" }}
                         >
-                          Delete
+                          DELETE
                         </button>
                       </div>
                     </div>
@@ -429,9 +464,9 @@ export default function SkillDetailPage() {
               {visibleSessionCount < skill.sessions.length && (
                 <button
                   onClick={() => setVisibleSessionCount((c) => Math.min(c + 10, skill.sessions.length))}
-                  className="mt-3 w-full py-2 text-sm text-zinc-400 hover:text-zinc-200 border border-zinc-800/50 hover:border-zinc-700 rounded-lg transition-colors"
+                  className="btn-stamp mt-3 w-full"
                 >
-                  Show more ({skill.sessions.length - visibleSessionCount} remaining)
+                  SHOW MORE ({skill.sessions.length - visibleSessionCount} REMAINING)
                 </button>
               )}
             </>
@@ -440,25 +475,33 @@ export default function SkillDetailPage() {
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#18181A] p-5 rounded-xl border border-zinc-800/50">
-          <p className="text-xs text-zinc-500 uppercase font-medium">This Week</p>
-          <p className="text-2xl font-bold text-white mt-1">
+        <div className="card card-tab-sm">
+          <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+            THIS WEEK
+          </p>
+          <p className="display text-2xl">
             {Math.floor(stats.weekMins / 60)}h {stats.weekMins % 60}m
           </p>
         </div>
-        <div className="bg-[#18181A] p-5 rounded-xl border border-zinc-800/50">
-          <p className="text-xs text-zinc-500 uppercase font-medium">This Month</p>
-          <p className="text-2xl font-bold text-white mt-1">
+        <div className="card card-tab-sm">
+          <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+            THIS MONTH
+          </p>
+          <p className="display text-2xl">
             {Math.floor(stats.monthMins / 60)}h {stats.monthMins % 60}m
           </p>
         </div>
-        <div className="bg-[#18181A] p-5 rounded-xl border border-zinc-800/50">
-          <p className="text-xs text-zinc-500 uppercase font-medium">Avg Session</p>
-          <p className="text-2xl font-bold text-white mt-1">{stats.avgMins} mins</p>
+        <div className="card card-tab-sm">
+          <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+            AVG SESSION
+          </p>
+          <p className="display text-2xl">{stats.avgMins} mins</p>
         </div>
-        <div className="bg-[#18181A] p-5 rounded-xl border border-zinc-800/50">
-          <p className="text-xs text-zinc-500 uppercase font-medium">Longest Streak</p>
-          <p className="text-2xl font-bold text-white mt-1">{stats.longestStreak} days</p>
+        <div className="card card-tab-sm">
+          <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+            LONGEST STREAK
+          </p>
+          <p className="display text-2xl">{stats.longestStreak} days</p>
         </div>
       </div>
 

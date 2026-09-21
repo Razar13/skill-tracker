@@ -30,25 +30,39 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen bg-[#121212] text-zinc-100 font-sans overflow-hidden">
-      <aside className="w-64 border-r border-zinc-800/50 flex flex-col bg-[#121212] flex-shrink-0">
-        <div className="h-16 flex items-center px-6 border-b border-zinc-800/50">
-          <DashboardIcon name="music" className="text-amber-500 mr-2 text-xl" />
-          <span className="font-bold text-lg tracking-wide text-zinc-100">Skill Tracker</span>
+    <div className="flex h-screen text-[var(--ink)] overflow-hidden" style={{ background: "var(--bg)" }}>
+      <aside
+        className="w-64 flex flex-col flex-shrink-0"
+        style={{ background: "var(--bg)", borderRight: "1px solid var(--rule)" }}
+      >
+        <div className="h-16 flex items-center gap-2.5 px-6" style={{ borderBottom: "1px solid var(--rule)" }}>
+          <div
+            className="w-8 h-8 rounded flex items-center justify-center display text-sm"
+            style={{ background: "var(--amber)", color: "#1a1207", boxShadow: "2px 2px 0 rgba(0,0,0,0.4)" }}
+          >
+            S
+          </div>
+          <div>
+            <div className="label-head text-[15px] leading-none">Skill Tracker</div>
+            <div className="mono text-[9px] tracking-widest mt-1" style={{ color: "var(--ink-faint)" }}>
+              PRACTICE LEDGER
+            </div>
+          </div>
         </div>
 
-        <nav className="flex-1 px-4 py-6 space-y-2">
+        <nav className="flex-1 px-4 py-6 space-y-1.5">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className="flex items-center gap-3 px-3 py-2 rounded text-sm transition-colors"
+                style={
                   isActive
-                    ? "bg-amber-900/20 border border-amber-700/50 text-amber-500"
-                    : "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent"
-                }`}
+                    ? { background: "rgba(240,177,62,0.1)", border: "1px solid var(--amber-dim)", color: "var(--amber)", fontFamily: "'Zilla Slab', serif", fontWeight: 600 }
+                    : { color: "var(--ink-dim)", border: "1px solid transparent" }
+                }
               >
                 <DashboardIcon name={item.icon} className="w-4 h-4 opacity-80" /> {item.name}
               </Link>
@@ -58,65 +72,57 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-16 flex items-center justify-between px-8 border-b border-zinc-800/50 bg-[#121212] flex-shrink-0">
+        <header
+          className="h-16 flex items-center justify-between px-8 flex-shrink-0"
+          style={{ borderBottom: "1px solid var(--rule)" }}
+        >
           <div className="flex-1 max-w-md">
             <div className="relative">
               <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <DashboardIcon name="search" className="w-4 h-4 text-zinc-500" />
+                <DashboardIcon name="search" className="w-4 h-4" style={{ opacity: 0.6 }} />
               </span>
               <input
                 type="text"
                 placeholder="Search skills or notes..."
-                className="w-full bg-[#18181A] border border-zinc-800/50 text-sm text-zinc-200 rounded-lg pl-10 pr-4 py-1.5 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-colors"
+                className="w-full text-sm rounded pl-10 pr-4 py-1.5 focus:outline-none transition-colors"
+                style={{ background: "var(--card)", border: "1px solid var(--rule)", color: "var(--ink)" }}
               />
             </div>
           </div>
           <div className="flex items-center gap-6">
-            <button className="text-zinc-400 hover:text-zinc-100 transition-colors">
+            <button className="transition-colors" style={{ color: "var(--ink-dim)" }}>
               <DashboardIcon name="bell" className="w-5 h-5" />
             </button>
 
-            <div className="relative pl-6 border-l border-zinc-800/50">
-              <button
-                type="button"
-                onClick={() => setMenuOpen((o) => !o)}
-                className="flex items-center gap-3"
-              >
-                <div className="w-7 h-7 rounded-full bg-zinc-700 overflow-hidden">
+            <div className="relative pl-6" style={{ borderLeft: "1px solid var(--rule)" }}>
+              <button type="button" onClick={() => setMenuOpen((o) => !o)} className="flex items-center gap-3">
+                <div className="w-7 h-7 rounded-full overflow-hidden" style={{ background: "var(--card-raised)" }}>
                   <img
                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`}
                     alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 </div>
-                <span className="text-sm font-medium text-zinc-300">
-                  {displayName} <span className="text-zinc-500 ml-1">⌄</span>
+                <span className="text-sm" style={{ color: "var(--ink-dim)" }}>
+                  {displayName} <span style={{ color: "var(--ink-faint)" }}>⌄</span>
                 </span>
               </button>
 
               {menuOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 z-20 bg-[#18181A] border border-zinc-800 rounded-lg shadow-xl py-1 min-w-[180px]">
-                    <Link
-                      href="/settings"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800/70"
-                    >
+                  <div
+                    className="absolute right-0 top-full mt-2 z-20 rounded shadow-xl py-1 min-w-[180px]"
+                    style={{ background: "var(--card)", border: "1px solid var(--rule)" }}
+                  >
+                    <Link href="/settings" onClick={() => setMenuOpen(false)} className="block px-4 py-2 text-sm" style={{ color: "var(--ink-dim)" }}>
                       Edit Profile
                     </Link>
-                    <Link
-                      href="/settings"
-                      onClick={() => setMenuOpen(false)}
-                      className="block px-4 py-2 text-sm text-zinc-300 hover:bg-zinc-800/70"
-                    >
+                    <Link href="/settings" onClick={() => setMenuOpen(false)} className="block px-4 py-2 text-sm" style={{ color: "var(--ink-dim)" }}>
                       Settings
                     </Link>
-                    <div className="my-1 border-t border-zinc-800" />
-                    <button
-                      onClick={handleSignOut}
-                      className="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-zinc-800/70"
-                    >
+                    <div className="my-1" style={{ borderTop: "1px solid var(--rule)" }} />
+                    <button onClick={handleSignOut} className="w-full text-left px-4 py-2 text-sm text-red-400">
                       Sign out
                     </button>
                   </div>

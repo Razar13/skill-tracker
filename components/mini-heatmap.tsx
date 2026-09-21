@@ -47,10 +47,8 @@ export default function MiniHeatmap({ sessions }: MiniHeatmapProps) {
           <div
             key={day.dateStr}
             title={`${day.dateStr}: ${day.minutes} mins`}
-            className={`aspect-square rounded-[2px] transition-colors ${
-              color ? "hover:ring-1 hover:ring-zinc-400" : "bg-zinc-800/60 hover:bg-zinc-700/80"
-            }`}
-            style={color ? { backgroundColor: color } : undefined}
+            className="aspect-square rounded-[2px] transition-colors"
+            style={{ backgroundColor: color || "#241c12" }}
           />
         );
       })}

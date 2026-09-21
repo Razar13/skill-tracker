@@ -67,6 +67,17 @@ function calculateGlobalStreak(sessions: PracticeSession[]) {
   return { current, daysSinceLast };
 }
 
+// Chip letter + color come straight from the skill, so the same identity
+// (initial + color) shows up in the checklist, recent sessions, and
+// everywhere else a skill is referenced.
+function SkillChip({ name, color }: { name: string; color: string }) {
+  return (
+    <div className="chip" style={{ backgroundColor: color }}>
+      {name.charAt(0).toUpperCase()}
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const [skills, setSkills] = useState<Skill[]>([]);
   const [sessions, setSessions] = useState<PracticeSession[]>([]);
@@ -133,58 +144,57 @@ export default function DashboardPage() {
   const recentSessions = useMemo(() => sessions.slice(0, 3), [sessions]);
 
   if (loading) {
-    return <div className="p-8 text-zinc-400 bg-[#121212] min-h-screen">Loading dashboard...</div>;
+    return (
+      <div className="p-8 min-h-screen mono text-sm" style={{ color: "var(--ink-faint)" }}>
+        Loading dashboard...
+      </div>
+    );
   }
 
   return (
-    <main className="text-zinc-100 p-8 font-sans">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <header className="flex items-start justify-between">
-          <div className="space-y-1">
-            <h1 className="text-3xl font-bold tracking-tight text-white">
+    <main className="p-8">
+      <div className="max-w-3xl mx-auto space-y-5">
+        <div className="card flex items-center justify-between gap-4">
+          <div>
+            <h1 className="display text-[28px] leading-tight mb-1">
               {getTimeGreeting()}, {firstName}
             </h1>
-            <p className="text-sm text-zinc-500">
+            <p className="mono text-xs" style={{ color: "var(--ink-faint)" }}>
               {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
             </p>
           </div>
           <Mascot streak={streak} daysSinceLastPractice={daysSinceLast} />
-        </header>
+        </div>
 
-        <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-white">Today</h2>
-            <span className="text-sm text-zinc-500">
-              {doneCount} of {checklist.length} done
+        <div className="card">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="label-head text-[15px] tracking-wide">Today</h2>
+            <span className="mono text-[11px]" style={{ color: "var(--ink-faint)" }}>
+              {doneCount} OF {checklist.length} DONE
             </span>
           </div>
 
           {checklist.length === 0 ? (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm" style={{ color: "var(--ink-dim)" }}>
               No skills yet.{" "}
-              <Link href="/dashboard/skills/new" className="text-amber-500 hover:text-amber-400">
+              <Link href="/dashboard/skills/new" className="btn-ghost inline" style={{ color: "var(--amber-dim)" }}>
                 Add one
               </Link>{" "}
               to get started.
             </p>
           ) : (
-            <div className="space-y-1">
+            <div>
               {checklist.map((skill) => (
-                <div key={skill.id} className="flex items-center justify-between py-2">
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className={`text-lg ${skill.doneToday ? "text-emerald-500" : "text-zinc-600"}`}
-                    >
-                      {skill.doneToday ? "✓" : "✗"}
-                    </span>
-                    <span className="text-sm text-zinc-200">{skill.name}</span>
+                <div key={skill.id} className="row-rule flex items-center justify-between py-2.5">
+                  <div className="flex items-center gap-3">
+                    <SkillChip name={skill.name} color={skill.color} />
+                    <span className="text-[14.5px]">{skill.name}</span>
                   </div>
-                  {!skill.doneToday && (
-                    <Link
-                      href={`/dashboard/log?skillId=${skill.id}`}
-                      className="px-3 py-1.5 text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded transition-colors"
-                    >
-                      Log
+                  {skill.doneToday ? (
+                    <span style={{ color: "#7bc496", fontSize: 15 }}>✓</span>
+                  ) : (
+                    <Link href={`/dashboard/log?skillId=${skill.id}`} className="btn-stamp">
+                      LOG
                     </Link>
                   )}
                 </div>
@@ -194,55 +204,64 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-5">
-            <p className="text-xs text-zinc-500 mb-1">Current streak</p>
-            <p className="text-2xl font-bold text-white">
+          <div className="card card-tab-sm">
+            <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+              CURRENT STREAK
+            </p>
+            <p className="display text-2xl">
               {streak} {streak === 1 ? "day" : "days"}
             </p>
           </div>
           <Link
             href="/dashboard/log"
-            className="bg-[#18181A] rounded-xl border-2 border-amber-500/40 hover:border-amber-500 p-5 flex items-center justify-center transition-colors"
+            className="card card-tab-sm flex items-center justify-center transition-colors"
+            style={{ borderStyle: "dashed", borderColor: "var(--amber-dim)" }}
           >
-            <span className="font-bold text-amber-500">Log practice</span>
+            <span className="label-head text-[14.5px]" style={{ color: "var(--amber)" }}>
+              + Log practice
+            </span>
           </Link>
         </div>
 
-        <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-white">Last 3 weeks</h2>
-            <Link href="/dashboard/skills" className="text-xs text-zinc-500 hover:text-zinc-300">
-              See skills
+        <div className="card">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="label-head text-[15px] tracking-wide">Last 3 weeks</h2>
+            <Link href="/dashboard/skills" className="btn-ghost">
+              SEE SKILLS →
             </Link>
           </div>
           <MiniHeatmap sessions={sessions} />
         </div>
 
-        <div className="bg-[#18181A] rounded-xl border border-zinc-800/50 p-6">
-          <h2 className="text-lg font-bold text-white mb-4">Recent sessions</h2>
+        <div className="card">
+          <h2 className="label-head text-[15px] tracking-wide mb-3">Recent sessions</h2>
           {recentSessions.length === 0 ? (
-            <p className="text-sm text-zinc-500">Nothing logged yet.</p>
+            <p className="text-sm" style={{ color: "var(--ink-dim)" }}>
+              Nothing logged yet.
+            </p>
           ) : (
-            <div className="space-y-4">
-              {recentSessions.map((session) => (
+            <div>
+              {recentSessions.map((s) => (
                 <div
-                  key={session.id}
-                  className="flex justify-between items-start border-b border-zinc-800/50 pb-4 last:border-0 last:pb-0"
+                  key={s.id}
+                  className="row-rule flex items-start gap-3 py-3 pl-3"
+                  style={{ borderLeft: `3px solid ${s.skill.color}` }}
                 >
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs text-zinc-500">
-                        {new Date(session.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
+                  <div className="flex-1">
+                    <div className="flex items-baseline gap-2 mb-0.5">
+                      <span className="mono text-[10.5px]" style={{ color: "var(--ink-faint)" }}>
+                        {new Date(s.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase()}
                       </span>
-                      <span className="font-bold text-zinc-200 text-sm">{session.skill.name}</span>
+                      <span className="label-head text-[13px]" style={{ color: s.skill.color }}>
+                        {s.skill.name}
+                      </span>
                     </div>
-                    <p className="text-xs text-zinc-400">{session.title}</p>
+                    <p className="text-[13px] italic" style={{ color: "var(--ink-dim)" }}>
+                      {s.title}
+                    </p>
                   </div>
-                  <span className="text-xs font-medium text-amber-500">
-                    {session.durationMinutes}m
+                  <span className="mono text-xs shrink-0" style={{ color: "var(--amber-dim)" }}>
+                    {s.durationMinutes}m
                   </span>
                 </div>
               ))}
