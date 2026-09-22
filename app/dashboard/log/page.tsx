@@ -15,6 +15,12 @@ interface Project {
   name: string;
 }
 
+const inputStyle: React.CSSProperties = {
+  background: "var(--card-raised)",
+  border: "1px solid var(--rule)",
+  color: "var(--ink)",
+};
+
 function LogPracticeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -55,7 +61,6 @@ function LogPracticeContent() {
     }
   }, [preselectedId, skills]);
 
-  // Load the projects that belong to whichever skill is selected
   useEffect(() => {
     if (!skillId) {
       setProjects([]);
@@ -127,28 +132,36 @@ function LogPracticeContent() {
   }
 
   if (loading) {
-    return <div className="p-8 text-zinc-400 bg-[#121212] min-h-screen">Loading...</div>;
+    return (
+      <div className="p-8 mono text-sm" style={{ color: "var(--ink-faint)" }}>
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <main className="min-h-screen bg-[#121212] text-zinc-100 p-8">
+    <main className="p-8">
       <div className="max-w-2xl mx-auto">
-        <Link href="/dashboard" className="text-sm text-zinc-500 hover:text-zinc-300">
-          ← Back to dashboard
+        <Link href="/dashboard" className="btn-ghost">
+          ← BACK TO DASHBOARD
         </Link>
 
         {step === "pick" && (
-          <div className="mt-4">
-            <h1 className="text-2xl font-bold text-white mb-1">Log practice</h1>
-            <p className="text-sm text-zinc-500 mb-6">Which skill did you work on?</p>
+          <div className="mt-5">
+            <h1 className="display text-[26px] mb-1">Log practice</h1>
+            <p className="text-sm mb-6" style={{ color: "var(--ink-faint)" }}>
+              Which skill did you work on?
+            </p>
 
             {skills.length === 0 ? (
-              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 text-center text-zinc-500 text-sm">
-                No skills yet.{" "}
-                <Link href="/dashboard/skills/new" className="text-amber-500 hover:text-amber-400">
-                  Add one first
-                </Link>
-                .
+              <div className="card text-center py-10">
+                <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
+                  No skills yet.{" "}
+                  <Link href="/dashboard/skills/new" style={{ color: "var(--amber-dim)" }}>
+                    Add one first
+                  </Link>
+                  .
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -156,13 +169,13 @@ function LogPracticeContent() {
                   <button
                     key={s.id}
                     onClick={() => chooseSkill(s.id)}
-                    className="bg-[#18181A] border border-zinc-800/50 hover:border-zinc-700 rounded-xl p-4 text-left transition-colors"
+                    className="card card-tab-sm text-left transition-colors hover:brightness-110"
+                    style={{ "--tab-color": s.color } as React.CSSProperties}
                   >
-                    <span
-                      className="inline-block w-3 h-3 rounded-full mb-2"
-                      style={{ backgroundColor: s.color }}
-                    />
-                    <p className="font-medium text-zinc-100 text-sm">{s.name}</p>
+                    <div className="chip mb-2" style={{ backgroundColor: s.color }}>
+                      {s.name.charAt(0).toUpperCase()}
+                    </div>
+                    <p className="label-head text-[14px]">{s.name}</p>
                   </button>
                 ))}
               </div>
@@ -171,48 +184,46 @@ function LogPracticeContent() {
         )}
 
         {step === "details" && selectedSkill && (
-          <div className="mt-4">
-            <h1 className="text-2xl font-bold text-white mb-1">Log practice</h1>
+          <div className="mt-5">
+            <h1 className="display text-[26px] mb-1">Log practice</h1>
             <div className="flex items-center gap-2 mb-6">
-              <span
-                className="inline-block w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: selectedSkill.color }}
-              />
-              <p className="text-sm text-zinc-400">{selectedSkill.name}</p>
-              <button
-                type="button"
-                onClick={() => setStep("pick")}
-                className="text-xs text-amber-500 hover:text-amber-400 ml-1"
-              >
-                Change
+              <div className="chip w-5 h-5 text-[10px]" style={{ backgroundColor: selectedSkill.color }}>
+                {selectedSkill.name.charAt(0).toUpperCase()}
+              </div>
+              <p className="text-sm" style={{ color: "var(--ink-dim)" }}>
+                {selectedSkill.name}
+              </p>
+              <button type="button" onClick={() => setStep("pick")} className="btn-ghost ml-1">
+                CHANGE
               </button>
             </div>
 
-            <form
-              onSubmit={handleSubmit}
-              className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 space-y-4"
-            >
+            <form onSubmit={handleSubmit} className="card space-y-4">
               <div>
-                <label className="block text-sm font-medium mb-1.5 text-zinc-300">Title</label>
+                <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                  TITLE
+                </label>
                 <input
                   type="text"
                   required
                   placeholder="e.g., Scales practice"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                  style={inputStyle}
                 />
               </div>
 
               {projects.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium mb-1.5 text-zinc-300">
-                    Project (optional)
+                  <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                    PROJECT (OPTIONAL)
                   </label>
                   <select
                     value={projectId}
                     onChange={(e) => setProjectId(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                    style={inputStyle}
                   >
                     <option value="">No project</option>
                     {projects.map((p) => (
@@ -226,63 +237,73 @@ function LogPracticeContent() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-sm font-medium mb-1.5 text-zinc-300">Hours</label>
+                  <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                    HOURS
+                  </label>
                   <input
                     type="number"
                     min={0}
                     max={23}
                     value={hours}
                     onChange={(e) => setHours(Math.max(0, Number(e.target.value)))}
-                    className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                    style={inputStyle}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5 text-zinc-300">Minutes</label>
+                  <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                    MINUTES
+                  </label>
                   <input
                     type="number"
                     min={0}
                     max={59}
                     value={minutes}
                     onChange={(e) => setMinutes(Math.min(59, Math.max(0, Number(e.target.value))))}
-                    className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                    style={inputStyle}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1.5 text-zinc-300">Date</label>
+                  <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                    DATE
+                  </label>
                   <input
                     type="date"
                     required
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                    style={inputStyle}
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1.5 text-zinc-300">
-                  Notes (optional)
+                <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                  NOTES (OPTIONAL)
                 </label>
                 <textarea
                   rows={3}
                   placeholder="What did you focus on today?"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                  style={inputStyle}
                 />
               </div>
 
-              {error && <p className="text-sm text-red-400">{error}</p>}
+              {error && (
+                <p className="text-sm" style={{ color: "#e08d8d" }}>
+                  {error}
+                </p>
+              )}
 
               <div className="flex justify-end gap-3 pt-2">
-                <Link href="/dashboard" className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200">
-                  Cancel
+                <Link href="/dashboard" className="btn-ghost">
+                  CANCEL
                 </Link>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-4 py-2.5 text-sm bg-amber-500 hover:bg-amber-600 text-black font-bold rounded-lg disabled:opacity-50"
-                >
+                <button type="submit" disabled={submitting} className="btn-primary">
                   {submitting ? "Saving..." : "Log session"}
                 </button>
               </div>
@@ -296,7 +317,13 @@ function LogPracticeContent() {
 
 export default function LogPracticePage() {
   return (
-    <Suspense fallback={<div className="p-8 text-zinc-400 bg-[#121212] min-h-screen">Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-8 mono text-sm" style={{ color: "var(--ink-faint)" }}>
+          Loading...
+        </div>
+      }
+    >
       <LogPracticeContent />
     </Suspense>
   );

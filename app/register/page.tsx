@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 
+const inputStyle: React.CSSProperties = {
+  background: "var(--card-raised)",
+  border: "1px solid var(--rule)",
+  color: "var(--ink)",
+};
+
 export default function RegisterPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -40,25 +46,37 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-6">
+    <main
+      className="flex min-h-screen items-center justify-center px-6"
+      style={{
+        background:
+          "radial-gradient(ellipse at top, rgba(240,177,62,0.05), transparent 55%), var(--bg)",
+        color: "var(--ink)",
+      }}
+    >
       <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm">
+        <div className="flex items-center justify-center gap-2.5 mb-8">
+          <div
+            className="w-9 h-9 rounded flex items-center justify-center display text-base"
+            style={{ background: "var(--amber)", color: "#1a1207", boxShadow: "2px 2px 0 rgba(0,0,0,0.4)" }}
+          >
+            S
+          </div>
+          <span className="label-head text-lg">Skill Tracker</span>
+        </div>
+
+        <div className="card">
           <div className="mb-8">
-            <h1 className="text-2xl font-bold text-zinc-900">
-              Create your account
-            </h1>
-            <p className="mt-2 text-sm text-zinc-500">
+            <h1 className="display text-2xl mb-1.5">Create your account</h1>
+            <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
               Start tracking the skills you practice.
             </p>
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
             <div>
-              <label
-                htmlFor="name"
-                className="mb-2 block text-sm font-medium text-zinc-700"
-              >
-                Name
+              <label htmlFor="name" className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                NAME
               </label>
               <input
                 id="name"
@@ -67,16 +85,14 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full rounded-lg border border-zinc-300 px-4 py-3 outline-none transition focus:border-zinc-900"
+                className="w-full rounded-lg px-4 py-3 outline-none transition-colors"
+                style={inputStyle}
               />
             </div>
 
             <div>
-              <label
-                htmlFor="email"
-                className="mb-2 block text-sm font-medium text-zinc-700"
-              >
-                Email
+              <label htmlFor="email" className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                EMAIL
               </label>
               <input
                 id="email"
@@ -85,16 +101,14 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded-lg border border-zinc-300 px-4 py-3 outline-none transition focus:border-zinc-900"
+                className="w-full rounded-lg px-4 py-3 outline-none transition-colors"
+                style={inputStyle}
               />
             </div>
 
             <div>
-              <label
-                htmlFor="password"
-                className="mb-2 block text-sm font-medium text-zinc-700"
-              >
-                Password
+              <label htmlFor="password" className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                PASSWORD
               </label>
               <input
                 id="password"
@@ -103,16 +117,14 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded-lg border border-zinc-300 px-4 py-3 outline-none transition focus:border-zinc-900"
+                className="w-full rounded-lg px-4 py-3 outline-none transition-colors"
+                style={inputStyle}
               />
             </div>
 
             <div>
-              <label
-                htmlFor="confirm-password"
-                className="mb-2 block text-sm font-medium text-zinc-700"
-              >
-                Confirm password
+              <label htmlFor="confirm-password" className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                CONFIRM PASSWORD
               </label>
               <input
                 id="confirm-password"
@@ -121,26 +133,25 @@ export default function RegisterPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="w-full rounded-lg border border-zinc-300 px-4 py-3 outline-none transition focus:border-zinc-900"
+                className="w-full rounded-lg px-4 py-3 outline-none transition-colors"
+                style={inputStyle}
               />
             </div>
 
             {error && (
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm" style={{ color: "#e08d8d" }}>
+                {error}
+              </p>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full rounded-lg bg-zinc-900 py-3 font-medium text-white disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className="btn-primary w-full py-3 text-center">
               {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
 
-          <p className="mt-6 text-center text-sm text-zinc-500">
+          <p className="mt-6 text-center text-sm" style={{ color: "var(--ink-faint)" }}>
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-zinc-900">
+            <Link href="/login" style={{ color: "var(--amber-dim)" }}>
               Sign in
             </Link>
           </p>

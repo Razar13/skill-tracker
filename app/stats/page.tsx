@@ -67,10 +67,10 @@ function calculateStreak(skillSessions: PracticeSession[]) {
   return { current, longest: Math.max(longest, current) };
 }
 
-const LEVEL_STYLES: Record<string, string> = {
-  Beginner: "text-blue-500 bg-blue-500/10 border-blue-500/30",
-  Intermediate: "text-amber-500 bg-amber-500/10 border-amber-500/30",
-  Advanced: "text-purple-400 bg-purple-400/10 border-purple-400/30",
+const LEVEL_COLORS: Record<string, string> = {
+  Beginner: "#3b82f6",
+  Intermediate: "#f0b13e",
+  Advanced: "#a855f7",
 };
 
 export default function StatsPage() {
@@ -156,131 +156,161 @@ export default function StatsPage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="p-8 text-zinc-400">Loading statistics...</div>
+        <div className="p-8 mono text-sm" style={{ color: "var(--ink-faint)" }}>
+          Loading statistics...
+        </div>
       </DashboardLayout>
     );
   }
 
   return (
     <DashboardLayout>
-      <main className="text-zinc-100 p-8">
+      <main className="p-8">
         <div className="max-w-6xl mx-auto space-y-6">
-        {
-          <main className="min-h-screen bg-[#121212] text-zinc-100 p-8">
-          <div className="max-w-6xl mx-auto space-y-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-white">Statistics</h1>
-                <p className="text-sm text-zinc-500 mt-1">
-                  Your practice, at a glance.
-                </p>
-              </div>
-              <Link
-                href="/dashboard"
-                className="px-4 py-2 text-sm bg-[#18181A] hover:bg-zinc-800 border border-zinc-800/50 text-zinc-300 rounded-lg font-medium transition-colors"
-              >
-                ← Back to Dashboard
-              </Link>
-            </div>
-
-            {/* Summary Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Total Time</p>
-                <p className="text-2xl font-bold text-white mt-1">{overallStats.totalHours}h</p>
-              </div>
-              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">This Week</p>
-                <p className="text-2xl font-bold text-white mt-1">{overallStats.weekHours}h</p>
-              </div>
-              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">This Month</p>
-                <p className="text-2xl font-bold text-white mt-1">{overallStats.monthHours}h</p>
-              </div>
-              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Sessions</p>
-                <p className="text-2xl font-bold text-white mt-1">{overallStats.totalSessions}</p>
-              </div>
-              <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-5">
-                <p className="text-xs text-zinc-500 uppercase font-semibold tracking-wide">Best Streak</p>
-                <p className="text-2xl font-bold text-amber-500 mt-1">
-                  🔥 {overallStats.bestCurrentStreak}
-                </p>
-              </div>
-            </div>
-
-            {/* Yearly Heatmap (reuses the fixed SkillHeatmap component) */}
-            <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6">
-              <SkillHeatmap sessions={sessions} />
-            </div>
-
-            {/* Per-skill breakdown */}
+          <div className="flex justify-between items-center">
             <div>
-              <h2 className="text-xl font-bold text-white mb-4">Skill Breakdown</h2>
-              {skillStats.length === 0 ? (
-                <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 text-center text-zinc-500 text-sm">
+              <h1 className="display text-[28px] mb-1">Statistics</h1>
+              <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
+                Your practice, at a glance.
+              </p>
+            </div>
+            <Link href="/dashboard" className="btn-stamp">
+              ← BACK TO DASHBOARD
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="card card-tab-sm">
+              <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+                TOTAL TIME
+              </p>
+              <p className="display text-2xl">{overallStats.totalHours}h</p>
+            </div>
+            <div className="card card-tab-sm">
+              <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+                THIS WEEK
+              </p>
+              <p className="display text-2xl">{overallStats.weekHours}h</p>
+            </div>
+            <div className="card card-tab-sm">
+              <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+                THIS MONTH
+              </p>
+              <p className="display text-2xl">{overallStats.monthHours}h</p>
+            </div>
+            <div className="card card-tab-sm">
+              <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+                SESSIONS
+              </p>
+              <p className="display text-2xl">{overallStats.totalSessions}</p>
+            </div>
+            <div className="card card-tab-sm" style={{ "--tab-color": "var(--amber)" } as React.CSSProperties}>
+              <p className="mono text-[10px] tracking-widest mb-1.5" style={{ color: "var(--ink-faint)" }}>
+                BEST STREAK
+              </p>
+              <p className="display text-2xl" style={{ color: "var(--amber)" }}>
+                🔥 {overallStats.bestCurrentStreak}
+              </p>
+            </div>
+          </div>
+
+          <div className="card">
+            <SkillHeatmap sessions={sessions} />
+          </div>
+
+          <div>
+            <h2 className="label-head text-[17px] tracking-wide mb-4">Skill Breakdown</h2>
+            {skillStats.length === 0 ? (
+              <div className="card text-center py-10">
+                <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
                   No skills to analyze yet.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {skillStats.map(({ skill, totalMins, sessionCount, streaks, avgMins, lastPracticed }) => (
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {skillStats.map(({ skill, totalMins, sessionCount, streaks, avgMins, lastPracticed }) => {
+                  const levelColor = LEVEL_COLORS[skill.level] || LEVEL_COLORS.Beginner;
+                  return (
                     <Link
                       key={skill.id}
                       href={`/dashboard/skills/${skill.id}`}
-                      className="bg-[#18181A] border border-zinc-800/50 hover:border-zinc-700 rounded-xl p-5 space-y-4 transition-colors block"
-                      style={{ borderLeft: `4px solid ${skill.color}` }}
+                      className="card space-y-4 transition-colors hover:brightness-110 block"
+                      style={{ "--tab-color": skill.color } as React.CSSProperties}
                     >
                       <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <h3 className="text-lg font-bold text-white">{skill.name}</h3>
-                          <span
-                            className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full border ${
-                              LEVEL_STYLES[skill.level] || LEVEL_STYLES.Beginner
-                            }`}
-                          >
-                            {skill.level}
-                          </span>
+                        <div className="flex items-center gap-3">
+                          <div className="chip" style={{ backgroundColor: skill.color }}>
+                            {skill.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <h3 className="label-head text-[17px]">{skill.name}</h3>
+                            <span
+                              className="inline-block mt-1 mono text-[9px] tracking-widest px-2 py-0.5 rounded-full"
+                              style={{ color: levelColor, background: `${levelColor}18` }}
+                            >
+                              {skill.level.toUpperCase()}
+                            </span>
+                          </div>
                         </div>
-                        <span className="text-xs font-semibold px-2.5 py-1 bg-zinc-800 text-zinc-300 rounded-full whitespace-nowrap">
+                        <span
+                          className="mono text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap"
+                          style={{ background: "var(--card-raised)", color: "var(--ink-dim)" }}
+                        >
                           {(totalMins / 60).toFixed(1)}h total
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-4 gap-2 pt-3 border-t border-zinc-800/50 text-center">
+                      <div
+                        className="grid grid-cols-4 gap-2 pt-3 text-center"
+                        style={{ borderTop: "1px dashed var(--rule)" }}
+                      >
                         <div>
-                          <p className="text-[10px] text-zinc-500 uppercase">Sessions</p>
-                          <p className="text-base font-semibold text-zinc-200">{sessionCount}</p>
+                          <p className="mono text-[9px] tracking-wide" style={{ color: "var(--ink-faint)" }}>
+                            SESSIONS
+                          </p>
+                          <p className="label-head text-base mt-0.5">{sessionCount}</p>
                         </div>
                         <div>
-                          <p className="text-[10px] text-zinc-500 uppercase">Avg</p>
-                          <p className="text-base font-semibold text-zinc-200">{avgMins}m</p>
+                          <p className="mono text-[9px] tracking-wide" style={{ color: "var(--ink-faint)" }}>
+                            AVG
+                          </p>
+                          <p className="label-head text-base mt-0.5">{avgMins}m</p>
                         </div>
                         <div>
-                          <p className="text-[10px] text-zinc-500 uppercase">Streak</p>
-                          <p className="text-base font-semibold text-emerald-500">🔥 {streaks.current}</p>
+                          <p className="mono text-[9px] tracking-wide" style={{ color: "var(--ink-faint)" }}>
+                            STREAK
+                          </p>
+                          <p className="label-head text-base mt-0.5" style={{ color: "#7bc496" }}>
+                            🔥 {streaks.current}
+                          </p>
                         </div>
                         <div>
-                          <p className="text-[10px] text-zinc-500 uppercase">Best</p>
-                          <p className="text-base font-semibold text-amber-500 inline-flex items-center gap-1">
+                          <p className="mono text-[9px] tracking-wide" style={{ color: "var(--ink-faint)" }}>
+                            BEST
+                          </p>
+                          <p
+                            className="label-head text-base mt-0.5 inline-flex items-center gap-1"
+                            style={{ color: "var(--amber)" }}
+                          >
                             <DashboardIcon name="trophy" className="w-3.5 h-3.5" /> {streaks.longest}
                           </p>
                         </div>
                       </div>
 
                       {lastPracticed && (
-                        <p className="text-xs text-zinc-600">
-                          Last practiced{" "}
-                          {lastPracticed.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                        <p className="mono text-[10px]" style={{ color: "var(--ink-faint)" }}>
+                          LAST PRACTICED{" "}
+                          {lastPracticed
+                            .toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                            .toUpperCase()}
                         </p>
                       )}
                     </Link>
-                  ))}
-                </div>
-              )}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </main>
-        } 
         </div>
       </main>
     </DashboardLayout>

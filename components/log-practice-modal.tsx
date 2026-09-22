@@ -21,6 +21,12 @@ interface LogPracticeModalProps {
   onSessionLogged: () => void;
 }
 
+const inputStyle: React.CSSProperties = {
+  background: "var(--card-raised)",
+  border: "1px solid var(--rule)",
+  color: "var(--ink)",
+};
+
 export default function LogPracticeModal({
   isOpen,
   skills,
@@ -79,20 +85,30 @@ export default function LogPracticeModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border">
-        <h2 className="text-xl font-semibold mb-4">Log Practice Session</h2>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+      <div className="card max-w-md w-full">
+        <h2 className="display text-xl mb-6">Log Practice Session</h2>
 
-        {error && <div className="p-3 mb-4 text-sm text-red-600 bg-red-50 rounded-lg">{error}</div>}
+        {error && (
+          <div
+            className="p-3 mb-4 text-sm rounded"
+            style={{ background: "rgba(198,102,102,0.1)", border: "1px solid rgba(198,102,102,0.4)", color: "#e08d8d" }}
+          >
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {!lockedSkillId && (
             <div>
-              <label className="block text-sm font-medium mb-1">Select Skill</label>
+              <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                SELECT SKILL
+              </label>
               <select
                 value={skillId || skills[0]?.id}
                 onChange={(e) => setSkillId(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                style={inputStyle}
               >
                 {skills.map((s) => (
                   <option key={s.id} value={s.id}>
@@ -105,11 +121,14 @@ export default function LogPracticeModal({
 
           {lockedSkillId && projects.length > 0 && (
             <div>
-              <label className="block text-sm font-medium mb-1">Project (Optional)</label>
+              <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                PROJECT (OPTIONAL)
+              </label>
               <select
                 value={projectId}
                 onChange={(e) => setProjectId(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                style={inputStyle}
               >
                 <option value="">No project</option>
                 {projects.map((p) => (
@@ -122,64 +141,72 @@ export default function LogPracticeModal({
           )}
 
           <div>
-            <label className="block text-sm font-medium mb-1">Title</label>
+            <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+              TITLE
+            </label>
             <input
               type="text"
               required
               placeholder="e.g., Vocabulary review / Scales practice"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+              style={inputStyle}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Duration (mins)</label>
+              <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                DURATION (MINS)
+              </label>
               <input
                 type="number"
                 min={1}
                 required
                 value={durationMinutes}
                 onChange={(e) => setDurationMinutes(Number(e.target.value))}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                style={inputStyle}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Date</label>
+              <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+                DATE
+              </label>
               <input
                 type="date"
                 required
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+                style={inputStyle}
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Notes (Optional)</label>
+            <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+              NOTES (OPTIONAL)
+            </label>
             <textarea
               rows={3}
               placeholder="What did you focus on today?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+              style={inputStyle}
             />
           </div>
 
           <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
-            >
-              Cancel
+            <button type="button" onClick={onClose} className="btn-ghost">
+              CANCEL
             </button>
             <button
               type="submit"
               disabled={isSubmitting || (!lockedSkillId && skills.length === 0)}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              className="btn-primary"
             >
               {isSubmitting ? "Saving..." : "Log Session"}
             </button>

@@ -18,6 +18,12 @@ interface AddSkillModalProps {
 
 const PRESET_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
+const inputStyle: React.CSSProperties = {
+  background: "var(--card-raised)",
+  border: "1px solid var(--rule)",
+  color: "var(--ink)",
+};
+
 export default function AddSkillModal({ isOpen, onClose, onSkillAdded }: AddSkillModalProps) {
   const [name, setName] = useState("");
   const [color, setColor] = useState(PRESET_COLORS[0]);
@@ -44,7 +50,6 @@ export default function AddSkillModal({ isOpen, onClose, onSkillAdded }: AddSkil
         throw new Error(data.error || "Failed to create skill");
       }
 
-      // Format response to match dashboard UI structure
       const formattedSkill: Skill = {
         ...data,
         sessionCount: 0,
@@ -62,15 +67,24 @@ export default function AddSkillModal({ isOpen, onClose, onSkillAdded }: AddSkil
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border">
-        <h2 className="text-xl font-semibold mb-4">Add New Skill</h2>
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+      <div className="card max-w-md w-full" style={{ "--tab-color": color } as React.CSSProperties}>
+        <h2 className="display text-xl mb-6">Add New Skill</h2>
 
-        {error && <div className="p-3 mb-4 text-sm text-red-600 bg-red-50 rounded-lg">{error}</div>}
+        {error && (
+          <div
+            className="p-3 mb-4 text-sm rounded"
+            style={{ background: "rgba(198,102,102,0.1)", border: "1px solid rgba(198,102,102,0.4)", color: "#e08d8d" }}
+          >
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Skill Name</label>
+            <label className="mono text-[11px] tracking-wide block mb-1.5" style={{ color: "var(--ink-dim)" }}>
+              SKILL NAME
+            </label>
             <input
               type="text"
               required
@@ -78,40 +92,37 @@ export default function AddSkillModal({ isOpen, onClose, onSkillAdded }: AddSkil
               placeholder="e.g., English, Piano, Programming"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
+              style={inputStyle}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-2">Color Theme</label>
+            <label className="mono text-[11px] tracking-wide block mb-2" style={{ color: "var(--ink-dim)" }}>
+              COLOR THEME
+            </label>
             <div className="flex gap-2">
               {PRESET_COLORS.map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full transition-transform ${
-                    color === c ? "ring-2 ring-offset-2 ring-black scale-110" : ""
-                  }`}
-                  style={{ backgroundColor: c }}
+                  className="w-8 h-8 rounded-full transition-transform"
+                  style={{
+                    backgroundColor: c,
+                    boxShadow: color === c ? "0 0 0 2px var(--card), 0 0 0 4px " + c : "none",
+                    transform: color === c ? "scale(1.1)" : "scale(1)",
+                  }}
                 />
               ))}
             </div>
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
-            >
-              Cancel
+            <button type="button" onClick={onClose} className="btn-ghost">
+              CANCEL
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
+            <button type="submit" disabled={isSubmitting} className="btn-primary">
               {isSubmitting ? "Saving..." : "Add Skill"}
             </button>
           </div>
