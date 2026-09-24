@@ -10,6 +10,8 @@ import ProjectModal from "@/components/project-modal";
 import ConfirmDialog from "@/components/confirm-dialog";
 import LevelBadgePicker from "@/components/level-badge-picker";
 import { DashboardIcon } from "@/components/icon";
+import SkillBanner from "@/components/skill-banner";
+import { getCatalogImage } from "@/lib/skill-catalog";
 
 interface Project {
   id: string;
@@ -240,6 +242,13 @@ export default function SkillDetailPage() {
         <span className="mx-2">/</span>
         <span style={{ color: "var(--amber)" }}>{skill.name}</span>
       </div>
+
+      <SkillBanner
+        name={skill.name}
+        color={skill.color}
+        imageUrl={skill.imageUrl ?? getCatalogImage(skill.name)}
+        size="full"
+      />
 
       <div
         className="card card-tab-sm flex items-center justify-between flex-wrap gap-4"
@@ -473,6 +482,8 @@ export default function SkillDetailPage() {
           )}
         </div>
       </div>
+
+      
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="card card-tab-sm">

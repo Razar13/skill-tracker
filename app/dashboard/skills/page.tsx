@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import AddSkillModal from "@/components/add-skill-modal";
 import Link from "next/link";
 import { DashboardIcon } from "@/components/icon";
+import SkillBanner from "@/components/skill-banner";
+import { getCatalogImage } from "@/lib/skill-catalog";
 
 interface Skill {
   id: string;
@@ -135,6 +137,13 @@ export default function MySkillsPage() {
                 className="card flex flex-col transition-colors hover:brightness-110"
                 style={{ "--tab-color": skill.color } as React.CSSProperties}
               >
+                <SkillBanner
+                  name={skill.name}
+                  color={skill.color}
+                  imageUrl={skill.imageUrl ?? getCatalogImage(skill.name)}
+                  size="card"
+                />
+
                 <div className="flex items-center justify-between mb-4">
                   <div
                     className="chip w-9 h-9 text-[15px]"

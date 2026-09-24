@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { SKILL_CATALOG, POPULAR_SKILL_NAMES, type CatalogSkill } from "@/lib/skill-catalog";
+import SkillBanner from "@/components/skill-banner";
+import { getCatalogImage } from "@/lib/skill-catalog";
 
 // Deterministic color per skill name so re-renders / re-visits stay consistent,
 // since the catalog itself has no color field.
@@ -69,7 +71,7 @@ export default function NewSkillPage() {
     const res = await fetch("/api/skills", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, color: colorForSkill(name) }),
+      body: JSON.stringify({ name, color: colorForSkill(name), imageUrl: customImagePreview || null }),
     });
     setAddingName(null);
 
@@ -80,6 +82,18 @@ export default function NewSkillPage() {
     }
     router.push("/dashboard");
     router.refresh();
+  }
+
+  const [customImageFile, setCustomImageFile] = useState<File | null>(null);
+  const [customImagePreview, setCustomImagePreview] = useState<string | null>(null);
+
+  function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCustomImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () => setCustomImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
   }
 
   async function handleCustomSubmit(e: React.FormEvent) {
@@ -98,7 +112,7 @@ export default function NewSkillPage() {
     const res = await fetch("/api/skills", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: trimmedName, color: colorForSkill(trimmedName) }),
+      body: JSON.stringify({ name: trimmedName, color: colorForSkill(trimmedName), imageUrl: customImagePreview || null }),
     });
     setCustomLoading(false);
 
@@ -192,11 +206,12 @@ export default function NewSkillPage() {
                   key={skill.name}
                   className="bg-[#18181A] border border-zinc-800/50 rounded-xl overflow-hidden flex flex-col"
                 >
-                  <div
-                    className="h-24 w-full"
-                    style={{
-                      background: `linear-gradient(135deg, ${colorForSkill(skill.name)}55 0%, #121212 100%)`,
-                    }}
+                  <SkillBanner
+                    name={skill.name}
+                    color={colorForSkill(skill.name)}
+                    imageUrl={getCatalogImage(skill.name)}
+                    size="small"
+                    showLabel={false}
                   />
                   <div className="p-4 flex flex-col flex-1">
                     <h3 className="font-bold text-white mb-1">{skill.name}</h3>
@@ -245,6 +260,14 @@ export default function NewSkillPage() {
             </div>
 
             {customError && <p className="text-sm text-red-400 md:col-span-2">{customError}</p>}
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium mb-1.5 text-zinc-300">Photo (optional)</label>
+              <input type="file" accept="image/*" onChange={handleImagePick} className="text-sm text-zinc-400" />
+              {customImagePreview && (
+                <img src={customImagePreview} alt="Preview" className="mt-3 h-24 w-40 object-cover rounded-lg" />
+              )}
+            </div>
 
             <div className="md:col-span-2">
               <button

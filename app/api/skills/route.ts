@@ -36,6 +36,7 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const name = typeof body?.name === "string" ? body.name.trim() : "";
   const color = typeof body?.color === "string" ? body.color.trim() : "";
+  const imageUrl = typeof body?.imageUrl === "string" ? body.imageUrl : null;
 
   if (!name) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
@@ -51,7 +52,7 @@ export async function POST(request: Request) {
   }
 
   const skill = await prisma.skill.create({
-    data: { name, color, userId: session.user.id },
+    data: { name, color, userId: session.user.id, imageUrl },
   });
 
   return NextResponse.json(skill, { status: 201 });

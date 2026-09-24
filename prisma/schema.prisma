@@ -74,6 +74,7 @@ model Verification {
   @@map("verification")
 }
 
+// prisma/schema.prisma — add one line to the Skill model
 model Skill {
   id        String            @id @default(cuid())
   userId    String
@@ -81,6 +82,7 @@ model Skill {
   name      String
   color     String
   level     String            @default("Beginner")
+  imageUrl  String?
   createdAt DateTime          @default(now())
   sessions  PracticeSession[]
   projects  Project[]

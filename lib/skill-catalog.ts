@@ -1,3 +1,9 @@
+import catalogImages from "./skill-catalog-images.json" with { type: "json" };
+
+export function getCatalogImage(name: string): string | null {
+  return (catalogImages as Record<string, string | null>)[name] ?? null;
+}
+
 export interface CatalogSkillBase {
   name: string;
   description: string;
