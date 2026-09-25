@@ -40,6 +40,65 @@ interface SkillDetail {
   projects: Project[];
 }
 
+// Small "⋮" trigger with a dropdown for Edit / Delete — replaces the old
+// separate EDIT / DELETE ghost buttons on session and project rows.
+function OptionsMenu({
+  onEdit,
+  onDelete,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-7 h-7 flex items-center justify-center rounded transition-colors hover:brightness-125"
+        style={{ color: "var(--ink-faint)" }}
+        aria-label="Options"
+      >
+        <span style={{ fontSize: 18, lineHeight: 1, letterSpacing: "-1px" }}>⋮</span>
+      </button>
+
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div
+            className="absolute right-0 top-full mt-1 z-20 rounded shadow-xl py-1 min-w-[130px]"
+            style={{ background: "var(--card)", border: "1px solid var(--rule)" }}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onEdit();
+              }}
+              className="w-full text-left px-3 py-2 text-sm transition-colors hover:brightness-125"
+              style={{ color: "var(--ink-dim)" }}
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                onDelete();
+              }}
+              className="w-full text-left px-3 py-2 text-sm transition-colors hover:brightness-125"
+              style={{ color: "#c66" }}
+            >
+              Delete
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function calculateStreaks(sessions: PracticeSessionT[]) {
   if (!sessions.length) return { current: 0, longest: 0 };
   const uniqueDates = Array.from(
@@ -80,6 +139,8 @@ function calculateStreaks(sessions: PracticeSessionT[]) {
   return { current, longest: Math.max(longest, current) };
 }
 
+const DEFAULT_VISIBLE_SESSIONS = 3;
+
 export default function SkillDetailPage() {
   const params = useParams<{ id: string }>();
   const router = useRouter();
@@ -90,7 +151,7 @@ export default function SkillDetailPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [expandedProjectId, setExpandedProjectId] = useState<string | null>(null);
-  const [visibleSessionCount, setVisibleSessionCount] = useState(3);
+  const [visibleSessionCount, setVisibleSessionCount] = useState(DEFAULT_VISIBLE_SESSIONS);
 
   const [sessionModal, setSessionModal] = useState<{ open: boolean; editing: PracticeSessionT | null }>({
     open: false,
@@ -344,19 +405,10 @@ export default function SkillDetailPage() {
                         >
                           {project._count.sessions} SESSION{project._count.sessions === 1 ? "" : "S"}
                         </span>
-                        <button
-                          onClick={() => setProjectModal({ open: true, editing: project })}
-                          className="btn-ghost"
-                        >
-                          EDIT
-                        </button>
-                        <button
-                          onClick={() => setDeleteProjectId(project.id)}
-                          className="btn-ghost"
-                          style={{ color: "#c66" }}
-                        >
-                          DELETE
-                        </button>
+                        <OptionsMenu
+                          onEdit={() => setProjectModal({ open: true, editing: project })}
+                          onDelete={() => setDeleteProjectId(project.id)}
+                        />
                       </div>
                     </div>
                     {project.description && (
@@ -453,37 +505,41 @@ export default function SkillDetailPage() {
                           {s.project.name}
                         </span>
                       )}
-                      <div className="flex gap-2">
-                        <button onClick={() => setSessionModal({ open: true, editing: s })} className="btn-ghost">
-                          EDIT
-                        </button>
-                        <button
-                          onClick={() => setDeleteSessionId(s.id)}
-                          className="btn-ghost"
-                          style={{ color: "#c66" }}
-                        >
-                          DELETE
-                        </button>
-                      </div>
+                      <OptionsMenu
+                        onEdit={() => setSessionModal({ open: true, editing: s })}
+                        onDelete={() => setDeleteSessionId(s.id)}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
 
-              {visibleSessionCount < skill.sessions.length && (
-                <button
-                  onClick={() => setVisibleSessionCount((c) => Math.min(c + 10, skill.sessions.length))}
-                  className="btn-stamp mt-3 w-full"
-                >
-                  SHOW MORE ({skill.sessions.length - visibleSessionCount} REMAINING)
-                </button>
+              {(visibleSessionCount > DEFAULT_VISIBLE_SESSIONS || visibleSessionCount < skill.sessions.length) && (
+                <div className="flex gap-3 mt-3">
+                  {visibleSessionCount > DEFAULT_VISIBLE_SESSIONS && (
+                    <button
+                      onClick={() => setVisibleSessionCount(DEFAULT_VISIBLE_SESSIONS)}
+                      className="btn-stamp flex-1"
+                    >
+                      SHOW LESS
+                    </button>
+                  )}
+                  {visibleSessionCount < skill.sessions.length && (
+                    <button
+                      onClick={() =>
+                        setVisibleSessionCount((c) => Math.min(c + 10, skill.sessions.length))
+                      }
+                      className="btn-stamp flex-1"
+                    >
+                      SHOW MORE ({skill.sessions.length - visibleSessionCount} REMAINING)
+                    </button>
+                  )}
+                </div>
               )}
             </>
           )}
         </div>
       </div>
-
-      
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="card card-tab-sm">

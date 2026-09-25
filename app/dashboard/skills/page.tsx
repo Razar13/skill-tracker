@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import AddSkillModal from "@/components/add-skill-modal";
 import Link from "next/link";
 import { DashboardIcon } from "@/components/icon";
@@ -23,8 +23,6 @@ interface PracticeSession {
   date: string;
 }
 
-// Each level gets a fixed accent so "Beginner"/"Intermediate"/"Advanced"
-// is recognizable as a color, not just a word — same idea as skill chips.
 const LEVEL_COLORS: Record<string, string> = {
   Beginner: "#3b82f6",
   Intermediate: "#f0b13e",
@@ -91,6 +89,24 @@ export default function MySkillsPage() {
     return current;
   };
 
+  // Most-recently-practiced skill first. Skills with no sessions yet sink to the bottom.
+  const lastActivityBySkill = useMemo(() => {
+    const map: Record<string, number> = {};
+    sessions.forEach((s) => {
+      const t = new Date(s.date).getTime();
+      if (!map[s.skillId] || t > map[s.skillId]) map[s.skillId] = t;
+    });
+    return map;
+  }, [sessions]);
+
+  const sortedSkills = useMemo(() => {
+    return [...skills].sort((a, b) => {
+      const aTime = lastActivityBySkill[a.id] ?? -Infinity;
+      const bTime = lastActivityBySkill[b.id] ?? -Infinity;
+      return bTime - aTime;
+    });
+  }, [skills, lastActivityBySkill]);
+
   if (loading) {
     return (
       <div className="p-8 mono text-sm" style={{ color: "var(--ink-faint)" }}>
@@ -105,7 +121,7 @@ export default function MySkillsPage() {
         <div>
           <h1 className="display text-[28px] mb-1.5">My Skills</h1>
           <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
-            Every skill here is a habit you&apos;re building — pick one up where you left off.
+            Sorted by most recent practice.
           </p>
         </div>
         <Link href="/dashboard/skills/new" className="btn-primary inline-block">
@@ -113,7 +129,7 @@ export default function MySkillsPage() {
         </Link>
       </div>
 
-      {skills.length === 0 ? (
+      {sortedSkills.length === 0 ? (
         <div className="card text-center py-16">
           <p className="text-sm mb-4" style={{ color: "var(--ink-faint)" }}>
             No skills tracked yet.
@@ -123,8 +139,8 @@ export default function MySkillsPage() {
           </Link>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {skills.map((skill) => {
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {sortedSkills.map((skill) => {
             const skillSessions = sessions.filter((s) => s.skillId === skill.id);
             const streak = calculateStreak(skillSessions);
             const hours = Math.floor(skill.totalMinutes / 60);
@@ -141,39 +157,34 @@ export default function MySkillsPage() {
                   name={skill.name}
                   color={skill.color}
                   imageUrl={skill.imageUrl ?? getCatalogImage(skill.name)}
-                  size="card"
+                  size="small"
+                  showLabel={false}
                 />
 
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mt-3 mb-3">
                   <div
-                    className="chip w-9 h-9 text-[15px]"
+                    className="chip w-8 h-8 text-[13px]"
                     style={{ backgroundColor: skill.color }}
                   >
                     {skill.name.charAt(0).toUpperCase()}
                   </div>
                   <span
-                    className="mono text-[10px] tracking-widest px-2 py-1 rounded-full border"
+                    className="mono text-[9px] tracking-widest px-1.5 py-0.5 rounded-full border"
                     style={{ color: levelColor, borderColor: `${levelColor}55`, background: `${levelColor}18` }}
                   >
                     {skill.level.toUpperCase()}
                   </span>
                 </div>
 
-                <h2 className="display text-lg mb-5">{skill.name}</h2>
+                <h2 className="display text-base mb-3">{skill.name}</h2>
 
-                <div className="flex items-center gap-2 mb-1.5 text-sm" style={{ color: "var(--ink-dim)" }}>
-                  <DashboardIcon name="hourglass" className="w-4 h-4" />
+                <div className="flex items-center gap-1.5 mb-1 text-[13px]" style={{ color: "var(--ink-dim)" }}>
+                  <DashboardIcon name="hourglass" className="w-3.5 h-3.5" />
                   <span className="mono">{hours}h logged</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm" style={{ color: "var(--amber)" }}>
+                <div className="flex items-center gap-1.5 text-[13px]" style={{ color: "var(--amber)" }}>
                   <span>🔥</span>
                   <span className="mono">{streak} day streak</span>
-                </div>
-
-                <div className="mt-auto pt-4" style={{ borderTop: "1px dashed var(--rule)" }}>
-                  <span className="btn-ghost inline-block" style={{ color: "var(--amber-dim)" }}>
-                    View details →
-                  </span>
                 </div>
               </Link>
             );

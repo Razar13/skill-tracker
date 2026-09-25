@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import DashboardLayout from "@/components/dashboard-layout";
 import ConfirmDialog from "@/components/confirm-dialog";
 import { authClient } from "@/lib/auth-client";
@@ -63,11 +63,21 @@ const inputStyle: React.CSSProperties = {
 };
 
 export default function SettingsPage() {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending, refetch } = authClient.useSession();
 
-  const [name, setName] = useState(session?.user?.name || "");
-  const [email] = useState(session?.user?.email || "");
+  const [name, setName] = useState("");
+  const nameTouched = useRef(false);
+  const [email, setEmail] = useState("");
+
+  // Locally-picked file, pending save. Once saved it becomes session.user.image
+  // and this resets to null so the DB value takes over as the source of truth.
+  const [avatarDraft, setAvatarDraft] = useState<string | null>(null);
+  const [avatarError, setAvatarError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [savingProfile, setSavingProfile] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [saveSuccess, setSaveSuccess] = useState(false);
 
   const [dailyReminder, setDailyReminder] = useState(true);
   const [weeklyEmail, setWeeklyEmail] = useState(true);
@@ -77,16 +87,77 @@ export default function SettingsPage() {
 
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  // Sync name from the session once it loads, but never overwrite something
+  // the user is actively editing.
+  useEffect(() => {
+    if (session?.user?.name && !nameTouched.current) {
+      setName(session.user.name);
+    }
+    if (session?.user?.email) {
+      setEmail(session.user.email);
+    }
+  }, [session]);
+
+  const avatarSeed = email || name || "guest";
+  const savedImage = session?.user?.image || null;
+  const avatarSrc =
+    avatarDraft ||
+    savedImage ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
+
+  function handleChangeAvatarClick() {
+    fileInputRef.current?.click();
+  }
+
+  function handleAvatarFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setAvatarError("");
+    setSaveSuccess(false);
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setAvatarError("Please choose an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setAvatarError("Image must be under 5MB.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => setAvatarDraft(reader.result as string);
+    reader.readAsDataURL(file);
+
+    e.target.value = "";
+  }
+
   async function handleSaveProfile() {
     setSavingProfile(true);
-    // TODO: wire to a PATCH /api/user route once it exists.
-    await new Promise((r) => setTimeout(r, 500));
-    setSavingProfile(false);
+    setSaveError("");
+    setSaveSuccess(false);
+
+    try {
+      const { error } = await authClient.updateUser({
+        name,
+        ...(avatarDraft ? { image: avatarDraft } : {}),
+      });
+
+      if (error) {
+        setSaveError(error.message || "Couldn't save your profile.");
+        return;
+      }
+
+      await refetch();
+      setAvatarDraft(null); // session.user.image now has the saved value
+      setSaveSuccess(true);
+    } catch {
+      setSaveError("Couldn't save your profile.");
+    } finally {
+      setSavingProfile(false);
+    }
   }
 
   function handleExportData() {
-    // Mockup: real version would hit an API route that dumps the user's
-    // skills/sessions/projects as JSON.
     const blob = new Blob(
       [JSON.stringify({ note: "export not wired up yet" }, null, 2)],
       { type: "application/json" }
@@ -112,13 +183,35 @@ export default function SettingsPage() {
         <Section title="Profile">
           <div className="flex items-center gap-4 mb-2">
             <div className="w-16 h-16 rounded-full overflow-hidden" style={{ background: "var(--card-raised)", border: "1px solid var(--rule)" }}>
-              <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email || name)}`}
-                alt="Profile"
-                className="w-full h-full object-cover"
-              />
+              <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
             </div>
-            <button className="btn-stamp">CHANGE AVATAR</button>
+            <div>
+              <button type="button" onClick={handleChangeAvatarClick} className="btn-stamp">
+                CHANGE AVATAR
+              </button>
+              {avatarDraft && (
+                <button type="button" onClick={() => setAvatarDraft(null)} className="btn-ghost ml-3">
+                  UNDO
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarFileChange}
+                className="hidden"
+              />
+              {avatarError && (
+                <p className="text-xs mt-1.5" style={{ color: "#e08d8d" }}>
+                  {avatarError}
+                </p>
+              )}
+              {avatarDraft && !avatarError && (
+                <p className="text-xs mt-1.5" style={{ color: "var(--ink-faint)" }}>
+                  Not saved yet — click "Save changes" below.
+                </p>
+              )}
+            </div>
           </div>
 
           <div>
@@ -127,7 +220,12 @@ export default function SettingsPage() {
             </label>
             <input
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                nameTouched.current = true;
+                setName(e.target.value);
+                setSaveSuccess(false);
+              }}
+              disabled={isPending}
               className="w-full px-3 py-2.5 rounded-lg focus:outline-none"
               style={inputStyle}
             />
@@ -144,8 +242,19 @@ export default function SettingsPage() {
             />
           </div>
 
+          {saveError && (
+            <p className="text-sm" style={{ color: "#e08d8d" }}>
+              {saveError}
+            </p>
+          )}
+          {saveSuccess && (
+            <p className="text-sm" style={{ color: "#7bc496" }}>
+              Saved.
+            </p>
+          )}
+
           <div className="flex justify-end">
-            <button onClick={handleSaveProfile} disabled={savingProfile} className="btn-primary">
+            <button onClick={handleSaveProfile} disabled={savingProfile || isPending} className="btn-primary">
               {savingProfile ? "Saving..." : "Save changes"}
             </button>
           </div>

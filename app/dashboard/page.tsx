@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import AddSkillModal from "@/components/add-skill-modal";
-import Mascot from "@/components/mascot";
 import MiniHeatmap from "@/components/mini-heatmap";
 import { authClient } from "@/lib/auth-client";
 
@@ -67,9 +66,6 @@ function calculateGlobalStreak(sessions: PracticeSession[]) {
   return { current, daysSinceLast };
 }
 
-// Chip letter + color come straight from the skill, so the same identity
-// (initial + color) shows up in the checklist, recent sessions, and
-// everywhere else a skill is referenced.
 function SkillChip({ name, color }: { name: string; color: string }) {
   return (
     <div className="chip" style={{ backgroundColor: color }}>
@@ -136,7 +132,7 @@ export default function DashboardPage() {
 
   const doneCount = checklist.filter((s) => s.doneToday).length;
 
-  const { current: streak, daysSinceLast } = useMemo(
+  const { current: streak } = useMemo(
     () => calculateGlobalStreak(sessions),
     [sessions]
   );
@@ -154,16 +150,13 @@ export default function DashboardPage() {
   return (
     <main className="p-8">
       <div className="max-w-3xl mx-auto space-y-5">
-        <div className="card flex items-center justify-between gap-4">
-          <div>
-            <h1 className="display text-[28px] leading-tight mb-1">
-              {getTimeGreeting()}, {firstName}
-            </h1>
-            <p className="mono text-xs" style={{ color: "var(--ink-faint)" }}>
-              {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
-            </p>
-          </div>
-          <Mascot streak={streak} daysSinceLastPractice={daysSinceLast} />
+        <div className="card">
+          <h1 className="display text-[28px] leading-tight mb-1">
+            {getTimeGreeting()}, {firstName}
+          </h1>
+          <p className="mono text-xs" style={{ color: "var(--ink-faint)" }}>
+            {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+          </p>
         </div>
 
         <div className="card">
