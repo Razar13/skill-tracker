@@ -22,6 +22,9 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   const displayName = session?.user?.name || "Guest";
   const avatarSeed = session?.user?.email || session?.user?.name || "guest";
+  const avatarSrc =
+    session?.user?.image ||
+    `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;
 
   async function handleSignOut() {
     setMenuOpen(false);
@@ -97,11 +100,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             <div className="relative pl-6" style={{ borderLeft: "1px solid var(--rule)" }}>
               <button type="button" onClick={() => setMenuOpen((o) => !o)} className="flex items-center gap-3">
                 <div className="w-7 h-7 rounded-full overflow-hidden" style={{ background: "var(--card-raised)" }}>
-                  <img
-                    src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`}
-                    alt="Profile"
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={avatarSrc} alt="Profile" className="w-full h-full object-cover" />
                 </div>
                 <span className="text-sm" style={{ color: "var(--ink-dim)" }}>
                   {displayName} <span style={{ color: "var(--ink-faint)" }}>⌄</span>
