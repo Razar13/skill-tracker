@@ -1120,6 +1120,7 @@ export const SkillScalarFieldEnum = {
   name: 'name',
   color: 'color',
   level: 'level',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt'
 } as const
 
