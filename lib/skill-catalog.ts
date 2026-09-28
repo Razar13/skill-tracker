@@ -121,3 +121,24 @@ export const POPULAR_SKILL_NAMES = [
   "Yoga",
   "Photography",
 ];
+
+// One color per category, so every skill in the same category looks related.
+// Custom skills that aren't in the catalog fall back to the "Other" color.
+export const CATEGORY_COLORS: Record<string, string> = {
+  Music: "#8b5cf6",
+  Languages: "#06b6d4",
+  Programming: "#10b981",
+  "Sports & Fitness": "#f97316",
+  "Art & Design": "#ec4899",
+  Other: "#64748b",
+};
+
+export function getSkillColor(name: string): string {
+  const key = name.trim().toLowerCase();
+  for (const category of SKILL_CATALOG) {
+    if (category.skills.some((s) => s.name.toLowerCase() === key)) {
+      return CATEGORY_COLORS[category.category] ?? CATEGORY_COLORS.Other;
+    }
+  }
+  return CATEGORY_COLORS.Other;
+}

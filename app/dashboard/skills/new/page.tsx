@@ -4,23 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { SKILL_CATALOG, POPULAR_SKILL_NAMES, type CatalogSkill } from "@/lib/skill-catalog";
 import SkillBanner from "@/components/skill-banner";
 import { getCatalogImage } from "@/lib/skill-catalog";
+import { SKILL_CATALOG, POPULAR_SKILL_NAMES, getSkillColor as colorForSkill, type CatalogSkill } from "@/lib/skill-catalog";
 
 // Deterministic color per skill name so re-renders / re-visits stay consistent,
 // since the catalog itself has no color field.
-const COLOR_PALETTE = [
-  "#3b82f6", "#f59e0b", "#8b5cf6", "#10b981",
-  "#f43f5e", "#06b6d4", "#f97316", "#64748b",
-  "#ec4899", "#22c55e",
-];
 
-function colorForSkill(name: string) {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) >>> 0;
-  return COLOR_PALETTE[hash % COLOR_PALETTE.length];
-}
 
 const CATEGORY_NAMES = SKILL_CATALOG.map((c) => c.category);
 
