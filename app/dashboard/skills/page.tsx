@@ -6,6 +6,7 @@ import Link from "next/link";
 import { DashboardIcon } from "@/components/icon";
 import SkillBanner from "@/components/skill-banner";
 import { getCatalogImage } from "@/lib/skill-catalog";
+import ExportSkillsModal from "@/components/export-skills-modal";
 
 interface Skill {
   id: string;
@@ -34,6 +35,7 @@ export default function MySkillsPage() {
   const [sessions, setSessions] = useState<PracticeSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
 
   const fetchSkills = useCallback(async () => {
     try {
@@ -75,6 +77,7 @@ export default function MySkillsPage() {
     let current = 0;
     const hasToday = uniqueDates.includes(today);
     const hasYesterday = uniqueDates.includes(yesterday);
+    
 
     if (hasToday || hasYesterday) {
       let checkDate = new Date(hasToday ? today : yesterday);
@@ -123,6 +126,9 @@ export default function MySkillsPage() {
           <p className="text-sm" style={{ color: "var(--ink-faint)" }}>
             Sorted by most recent practice.
           </p>
+          <button onClick={() => setIsExportOpen(true)} className="btn-ghost mt-1">
+            Export skills
+          </button>
         </div>
         <Link href="/dashboard/skills/new" className="btn-primary inline-block">
           + Add New Skill
@@ -191,12 +197,17 @@ export default function MySkillsPage() {
           })}
         </div>
       )}
-
+      <ExportSkillsModal
+        isOpen={isExportOpen}
+        skills={sortedSkills.map((s) => ({ id: s.id, name: s.name, color: s.color }))}
+        onClose={() => setIsExportOpen(false)}
+      />
       <AddSkillModal
         isOpen={isAddSkillOpen}
         onClose={() => setIsAddSkillOpen(false)}
         onSkillAdded={() => fetchSkills()}
       />
+      
     </div>
   );
 }

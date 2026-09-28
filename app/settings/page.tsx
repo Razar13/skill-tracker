@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import DashboardLayout from "@/components/dashboard-layout";
 import ConfirmDialog from "@/components/confirm-dialog";
 import { authClient } from "@/lib/auth-client";
+import { downloadJson } from "@/lib/export-import";
 
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
@@ -157,18 +158,18 @@ export default function SettingsPage() {
     }
   }
 
-  function handleExportData() {
-    const blob = new Blob(
-      [JSON.stringify({ note: "export not wired up yet" }, null, 2)],
-      { type: "application/json" }
-    );
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "skill-tracker-export.json";
-    a.click();
-    URL.revokeObjectURL(url);
+  
+
+  async function handleExportData() {
+  try {
+    const res = await fetch("/api/skills/export");
+    if (!res.ok) return;
+    const data = await res.json();
+    downloadJson("skill-tracker-export.json", data);
+  } catch (err) {
+    console.error("Export failed:", err);
   }
+}
 
   return (
     <DashboardLayout>

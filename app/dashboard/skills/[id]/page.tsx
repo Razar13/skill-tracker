@@ -12,6 +12,8 @@ import LevelBadgePicker from "@/components/level-badge-picker";
 import { DashboardIcon } from "@/components/icon";
 import SkillBanner from "@/components/skill-banner";
 import { getCatalogImage } from "@/lib/skill-catalog";
+import { downloadJson } from "@/lib/export-import";
+import ImportDataModal from "@/components/import-data-modal";
 
 interface Project {
   id: string;
@@ -165,6 +167,7 @@ export default function SkillDetailPage() {
   const [deleteProjectId, setDeleteProjectId] = useState<string | null>(null);
   const [deleteSkillOpen, setDeleteSkillOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
 
   const fetchSkill = useCallback(async () => {
     try {
@@ -223,6 +226,14 @@ export default function SkillDetailPage() {
     } finally {
       setIsDeleting(false);
     }
+  }
+
+  async function handleExportSkill() {
+    if (!skill) return;
+    const res = await fetch(`/api/skills/${skill.id}/export`);
+    if (!res.ok) return;
+    const data = await res.json();
+    downloadJson(`${skill.name.toLowerCase().replace(/\s+/g, "-")}-export.json`, data);
   }
 
   async function handleDeleteSkill() {
@@ -340,7 +351,14 @@ export default function SkillDetailPage() {
             </p>
           </div>
         </div>
+  
         <div className="flex items-center gap-3">
+          <button onClick={handleExportSkill} className="btn-ghost">
+            Export
+          </button>
+          <button onClick={() => setImportOpen(true)} className="btn-ghost">
+            Import
+          </button>
           <button
             onClick={() => setDeleteSkillOpen(true)}
             className="btn-stamp"
@@ -571,6 +589,14 @@ export default function SkillDetailPage() {
           <p className="display text-2xl">{stats.longestStreak} days</p>
         </div>
       </div>
+
+      <ImportDataModal
+        isOpen={importOpen}
+        targetSkillId={skill.id}
+        targetSkillName={skill.name}
+        onClose={() => setImportOpen(false)}
+        onImported={fetchSkill}
+      />
 
       <SessionModal
         isOpen={sessionModal.open}

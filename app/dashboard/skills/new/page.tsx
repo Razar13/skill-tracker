@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
@@ -63,6 +63,74 @@ export default function NewSkillPage() {
   if (!isPending && !session) {
     router.push("/login");
     return null;
+  }
+
+  const [showImport, setShowImport] = useState(false);
+  const [importMode, setImportMode] = useState<"file" | "skill">("file");
+  const [importFile, setImportFile] = useState<File | null>(null);
+  const [importSourceSkillId, setImportSourceSkillId] = useState("");
+  const [existingSkills, setExistingSkills] = useState<{ id: string; name: string }[]>([]);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importName, setImportName] = useState("");
+
+  useEffect(() => {
+    if (showImport && importMode === "skill" && existingSkills.length === 0) {
+      fetch("/api/skills")
+        .then((r) => (r.ok ? r.json() : []))
+        .then((data) => setExistingSkills(data));
+    }
+  }, [showImport, importMode, existingSkills.length]);
+
+  
+  async function handleImportSubmit() {
+    setImportError("");
+
+    if (!importName.trim()) {
+      setImportError("Give the new skill a name.");
+      return;
+    }
+
+    let payload: any;
+    if (importMode === "file") {
+      if (!importFile) {
+        setImportError("Choose a file to import.");
+        return;
+      }
+      try {
+        const text = await importFile.text();
+        payload = { source: "file", data: JSON.parse(text) };
+      } catch {
+        setImportError("That file isn't valid JSON.");
+        return;
+      }
+    } else {
+      if (!importSourceSkillId) {
+        setImportError("Choose a skill to copy from.");
+        return;
+      }
+      payload = { source: "skill", sourceSkillId: importSourceSkillId };
+    }
+
+    const trimmedName = importName.trim();
+    payload.target = { mode: "new", name: trimmedName, color: colorForSkill(trimmedName) };
+
+    setImportLoading(true);
+    const res = await fetch("/api/skills/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    setImportLoading(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      setImportError(data?.error || "Import failed.");
+      return;
+    }
+
+    router.push("/dashboard/skills");
+    router.refresh();
   }
 
   async function addSkill(name: string) {
@@ -139,6 +207,83 @@ export default function NewSkillPage() {
             Start tracking another milestone on your journey.
           </p>
         </div>
+
+        <div className="text-right">
+          <button
+            type="button"
+            onClick={() => setShowImport((v) => !v)}
+            className="text-xs underline text-zinc-500 hover:text-zinc-300"
+          >
+            {showImport ? "Hide import" : "Or import existing data"}
+          </button>
+        </div>
+
+        {showImport && (
+          <div className="bg-[#18181A] border border-zinc-800/50 rounded-xl p-6 space-y-4">
+            <h2 className="text-lg font-bold text-white">Import data</h2>
+            <p className="text-sm text-zinc-500">
+              Bring in a previously exported JSON file, or copy sessions and projects from another
+              skill in your account. If a skill with the same name already exists, the imported
+              data is added to it rather than replacing it.
+            </p>
+
+            <div>
+              <label className="block text-sm font-medium mb-1.5 text-zinc-300">New skill name</label>
+              <input
+                type="text"
+                value={importName}
+                onChange={(e) => setImportName(e.target.value)}
+                maxLength={50}
+                placeholder="e.g. Language, Game Development"
+                className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+              />
+            </div>
+
+            <div className="flex gap-4 text-sm">
+              <label className="flex items-center gap-2 text-zinc-300">
+                <input type="radio" checked={importMode === "file"} onChange={() => setImportMode("file")} />
+                JSON file
+              </label>
+              <label className="flex items-center gap-2 text-zinc-300">
+                <input type="radio" checked={importMode === "skill"} onChange={() => setImportMode("skill")} />
+                Copy from a skill I have
+              </label>
+            </div>
+
+            {importMode === "file" ? (
+              <input
+                type="file"
+                accept="application/json"
+                onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                className="text-sm text-zinc-400"
+              />
+            ) : (
+              <select
+                value={importSourceSkillId}
+                onChange={(e) => setImportSourceSkillId(e.target.value)}
+                className="w-full px-3 py-2.5 bg-[#0f0f10] border border-zinc-800 text-zinc-100 rounded-lg focus:outline-none"
+              >
+                <option value="">Select a skill…</option>
+                {existingSkills.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            )}
+
+            {importError && <p className="text-sm text-red-400">{importError}</p>}
+
+            <button
+              type="button"
+              onClick={handleImportSubmit}
+              disabled={importLoading}
+              className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-black font-bold text-sm rounded-lg disabled:opacity-50"
+            >
+              {importLoading ? "Importing..." : "Import"}
+            </button>
+          </div>
+        )}
 
         <div>
           <div className="relative">
