@@ -11,11 +11,11 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className="w-10 h-6 rounded-full transition-colors relative shrink-0"
+      className="w-10 h-6.5 rounded-full transition-colors relative shrink-0"
       style={{ background: checked ? "var(--amber)" : "var(--card-raised)", border: "1px solid var(--rule)" }}
     >
       <span
-        className="absolute top-0.5 w-5 h-5 rounded-full transition-transform"
+        className="absolute top-0.5 left-0 w-5 h-5 rounded-full transition-transform"
         style={{
           background: checked ? "#1a1207" : "var(--ink-faint)",
           transform: checked ? "translateX(16px)" : "translateX(2px)",
