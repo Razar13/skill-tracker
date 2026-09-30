@@ -80,9 +80,33 @@ export default function SettingsPage() {
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  const [dailyReminder, setDailyReminder] = useState(true);
-  const [weeklyEmail, setWeeklyEmail] = useState(true);
-  const [streakAlerts, setStreakAlerts] = useState(false);
+  type NotifPrefs = { dailyReminder: boolean; weeklySummary: boolean; streakAlerts: boolean };
+  const [notifPrefs, setNotifPrefs] = useState<NotifPrefs | null>(null);
+
+  useEffect(() => {
+    fetch("/api/notifications/preferences")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setNotifPrefs(data);
+      });
+  }, []);
+
+  async function updateNotifPref(key: keyof NotifPrefs, value: boolean) {
+    if (!notifPrefs) return;
+    const previous = notifPrefs;
+    setNotifPrefs({ ...notifPrefs, [key]: value }); // optimistic
+    try {
+      const res = await fetch("/api/notifications/preferences", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ [key]: value }),
+      });
+      if (!res.ok) throw new Error();
+      window.dispatchEvent(new Event("notification-prefs-changed")); // refresh the bell
+    } catch {
+      setNotifPrefs(previous); // revert if saving failed
+    }
+  }
 
   const [publicProfile, setPublicProfile] = useState(false);
 
@@ -261,16 +285,28 @@ export default function SettingsPage() {
           </div>
         </Section>
 
-        <Section title="Notifications" description="Choose when Skill Tracker should nudge you.">
-          <Row label="Daily practice reminder" hint="A push notification if you haven't logged today.">
-            <Toggle checked={dailyReminder} onChange={setDailyReminder} />
+        <Section title="Notifications" description="Choose which reminders show up in the bell at the top of the page.">
+          <Row label="Daily practice reminder" hint="A reminder if you haven't logged anything today.">
+            <Toggle
+              checked={notifPrefs?.dailyReminder ?? false}
+              onChange={(v) => updateNotifPref("dailyReminder", v)}
+            />
           </Row>
-          <Row label="Weekly summary email" hint="Recap of hours practiced and streaks.">
-            <Toggle checked={weeklyEmail} onChange={setWeeklyEmail} />
+          <Row label="Weekly summary" hint="A recap of last week's hours and your top skill.">
+            <Toggle
+              checked={notifPrefs?.weeklySummary ?? false}
+              onChange={(v) => updateNotifPref("weeklySummary", v)}
+            />
           </Row>
-          <Row label="Streak-at-risk alerts" hint="Warn me before a streak breaks.">
-            <Toggle checked={streakAlerts} onChange={setStreakAlerts} />
+          <Row label="Streak-at-risk alerts" hint="Warn me when a streak of 2+ days is about to break.">
+            <Toggle
+              checked={notifPrefs?.streakAlerts ?? false}
+              onChange={(v) => updateNotifPref("streakAlerts", v)}
+            />
           </Row>
+          <p className="mono text-[11px]" style={{ color: "var(--ink-faint)" }}>
+            Push and email delivery aren&apos;t available yet. Notifications appear in the app.
+          </p>
         </Section>
 
         <Section title="Privacy" description="Control visibility and your data.">

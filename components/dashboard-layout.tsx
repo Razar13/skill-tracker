@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { DashboardIcon } from "@/components/icon";
+import NotificationBell from "@/components/notification-bell";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: "dashboard" },
@@ -38,7 +39,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         className="w-64 flex flex-col flex-shrink-0"
         style={{ background: "var(--bg)", borderRight: "1px solid var(--rule)" }}
       >
-        <div className="h-16 flex items-center gap-2.5 px-6" style={{ borderBottom: "1px solid var(--rule)" }}>
+        <Link
+          href="/"
+          className="h-16 flex items-center gap-2.5 px-6 transition-opacity hover:opacity-80"
+          style={{ borderBottom: "1px solid var(--rule)" }}
+        >
           <div
             className="w-8 h-8 rounded flex items-center justify-center display text-sm"
             style={{ background: "var(--amber)", color: "#1a1207", boxShadow: "2px 2px 0 rgba(0,0,0,0.4)" }}
@@ -51,7 +56,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               PRACTICE LEDGER
             </div>
           </div>
-        </div>
+        </Link>
 
         <nav className="flex-1 px-4 py-6 space-y-1.5">
           {navItems.map((item) => {
@@ -76,26 +81,11 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header
-          className="h-16 flex items-center justify-between px-8 flex-shrink-0"
+          className="h-16 flex items-center justify-end px-8 flex-shrink-0"
           style={{ borderBottom: "1px solid var(--rule)" }}
         >
-          <div className="flex-1 max-w-md">
-            <div className="relative">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                <DashboardIcon name="search" className="w-4 h-4" style={{ opacity: 0.6 }} />
-              </span>
-              <input
-                type="text"
-                placeholder="Search skills or notes..."
-                className="w-full text-sm rounded pl-10 pr-4 py-1.5 focus:outline-none transition-colors"
-                style={{ background: "var(--card)", border: "1px solid var(--rule)", color: "var(--ink)" }}
-              />
-            </div>
-          </div>
           <div className="flex items-center gap-6">
-            <button className="transition-colors" style={{ color: "var(--ink-dim)" }}>
-              <DashboardIcon name="bell" className="w-5 h-5" />
-            </button>
+            <NotificationBell />
 
             <div className="relative pl-6" style={{ borderLeft: "1px solid var(--rule)" }}>
               <button type="button" onClick={() => setMenuOpen((o) => !o)} className="flex items-center gap-3">

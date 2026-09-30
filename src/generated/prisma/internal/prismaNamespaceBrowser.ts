@@ -52,6 +52,7 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   User: 'User',
+  NotificationPreference: 'NotificationPreference',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
@@ -88,6 +89,17 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const NotificationPreferenceScalarFieldEnum = {
+  userId: 'userId',
+  dailyReminder: 'dailyReminder',
+  weeklySummary: 'weeklySummary',
+  streakAlerts: 'streakAlerts',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationPreferenceScalarFieldEnum = (typeof NotificationPreferenceScalarFieldEnum)[keyof typeof NotificationPreferenceScalarFieldEnum]
 
 
 export const SessionScalarFieldEnum = {

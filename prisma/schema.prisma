@@ -19,9 +19,21 @@ model User {
   sessions      Session[]
   accounts      Account[]
   skills        Skill[]
+  notificationPreference NotificationPreference?
 
   @@unique([email])
   @@map("user")
+}
+
+model NotificationPreference {
+  userId        String   @id
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyReminder Boolean  @default(true)
+  weeklySummary Boolean  @default(true)
+  streakAlerts  Boolean  @default(false)
+  updatedAt     DateTime @updatedAt
+
+  @@map("notification_preference")
 }
 
 model Session {
