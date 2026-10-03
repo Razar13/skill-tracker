@@ -188,6 +188,7 @@ export default function Home() {
           <p className="mono text-[10px] tracking-widest" style={{ color: "var(--ink-faint)" }}>
             SKILL TRACKER · PRACTICE LEDGER
           </p>
+          <Link href="/privacy" className="btn-ghost mt-3 inline-block">PRIVACY POLICY</Link>
         </footer>
       </div>
     </main>

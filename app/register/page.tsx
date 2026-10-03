@@ -148,7 +148,9 @@ export default function RegisterPage() {
               {loading ? "Creating account..." : "Create account"}
             </button>
           </form>
-
+          <p className="mt-4 text-center text-xs" style={{ color: "var(--ink-faint)" }}>
+            See our <Link href="/privacy" style={{ color: "var(--amber-dim)" }}>Privacy Policy</Link>.
+          </p>
           <p className="mt-6 text-center text-sm" style={{ color: "var(--ink-faint)" }}>
             Already have an account?{" "}
             <Link href="/login" style={{ color: "var(--amber-dim)" }}>
