@@ -40,6 +40,7 @@ interface SkillDetail {
   createdAt: string;
   sessions: PracticeSessionT[];
   projects: Project[];
+  imageUrl: string | null;
 }
 
 // Small "⋮" trigger with a dropdown for Edit / Delete — replaces the old

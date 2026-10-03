@@ -15,6 +15,7 @@ interface Skill {
   level: string;
   sessionCount: number;
   totalMinutes: number;
+  imageUrl: string | null;
 }
 
 interface PracticeSession {

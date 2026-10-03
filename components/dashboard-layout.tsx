@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const displayName = session?.user?.name || "Guest";
-  const avatarSeed = session?.user?.email || session?.user?.name || "guest";
+  const avatarSeed = session?.user?.id || "guest";
   const avatarSrc =
     session?.user?.image ||
     `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(avatarSeed)}`;

@@ -123,7 +123,7 @@ export default function SettingsPage() {
     }
   }, [session]);
 
-  const avatarSeed = email || name || "guest";
+  const avatarSeed = session?.user?.id || "guest";
   const savedImage = session?.user?.image || null;
   const avatarSrc =
     avatarDraft ||
@@ -144,8 +144,8 @@ export default function SettingsPage() {
       setAvatarError("Please choose an image file.");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      setAvatarError("Image must be under 5MB.");
+    if (file.size > 2 * 1024 * 1024) {
+      setAvatarError("Image must be under 2MB.");
       return;
     }
 

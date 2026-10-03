@@ -50,10 +50,7 @@ export default function NewSkillPage() {
   const browsing = Boolean(trimmedQuery) || Boolean(activeCategory);
   const visibleSkills = browsing ? filteredSkills : popularSkills;
 
-  if (!isPending && !session) {
-    router.push("/login");
-    return null;
-  }
+  
 
   const [showImport, setShowImport] = useState(false);
   const [importMode, setImportMode] = useState<"file" | "skill">("file");
@@ -148,6 +145,14 @@ export default function NewSkillPage() {
   function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // new: reject big files
+    if (file.size > 2 * 1024 * 1024) {
+      setCustomError("Image must be under 2MB.");
+      e.target.value = "";
+      return;
+    }
+
     setCustomImageFile(file);
     const reader = new FileReader();
     reader.onload = () => setCustomImagePreview(reader.result as string);
@@ -181,6 +186,11 @@ export default function NewSkillPage() {
     }
     router.push("/dashboard");
     router.refresh();
+  }
+
+  if (!isPending && !session) {
+    router.push("/login");
+    return null;
   }
 
   return (

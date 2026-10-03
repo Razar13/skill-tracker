@@ -38,6 +38,10 @@ export async function POST(request: Request) {
   const color = typeof body?.color === "string" ? body.color.trim() : "";
   const imageUrl = typeof body?.imageUrl === "string" ? body.imageUrl : null;
 
+  if (imageUrl && imageUrl.length > 3_000_000) {
+    return NextResponse.json({ error: "Image is too large." }, { status: 413 });
+  }
+
   if (!name) {
     return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
